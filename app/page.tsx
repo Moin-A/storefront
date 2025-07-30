@@ -1,3 +1,4 @@
+'use client'
 import { Button } from "../components/ui/button"
 import { Card, CardContent } from "../components/ui/card"
 import { Badge } from "../components/ui/badge"
@@ -5,8 +6,35 @@ import { Input } from "../components/ui/input"
 import { Search, ShoppingCart, ArrowRight, Star, Heart } from "lucide-react"
 import Image from "next/image"
 import Link from "next/link"
+import { useEffect, useState } from "react"
 
 export default function HomePage() {
+  const [store, setStore] = useState<any>(null)
+  const [error, setError] = useState<string | null>(null)
+  useEffect(() => {
+    const fetchStore = async () => {
+      try {
+        const res = await fetch("/api/stores/1", {
+          headers: {
+            Accept: "application/json",
+          },
+        })
+
+        if (!res.ok) {
+          throw new Error(`Failed to fetch: ${res.status}`)
+        }
+
+        const data = await res.json()
+        setStore(data)
+      } catch (err: any) {
+        console.error(err)
+        setError(err.message)
+      }
+    }
+
+    fetchStore()
+  }, [])
+
   return (
     <div className="min-h-screen bg-white">
       {/* Header */}
@@ -51,7 +79,7 @@ export default function HomePage() {
       </header>
 
       {/* Hero Section */}
-      <section className="relative overflow-hidden bg-gradient-to-br from-gray-50 via-purple-50 to-purple-100">
+      <section className="relative overflow-hidden bg-gradient-to-br from-gray-50 via-blue-300 to-blue-400">
         {/* Decorative elements */}
         <div className="absolute top-20 left-10 w-32 h-32 bg-purple-200 rounded-full opacity-30 blur-xl"></div>
         <div className="absolute bottom-20 right-20 w-24 h-24 bg-purple-300 rounded-full opacity-20 blur-lg"></div>
@@ -99,14 +127,17 @@ export default function HomePage() {
 
             {/* Right Content - Hero Image */}
             <div className="relative">
-              <Image
-                src="/placeholder.svg?height=500&width=600"
-                alt="Premium product collection"
-                width={600}
-                height={500}
-                className="w-full h-auto object-contain rounded-lg"
-                priority
-              />
+              {store?.hero_image_url &&
+               <Image
+               src={store?.hero_image_url||null}
+               alt="Premium product collection"
+               width={600}
+               height={500}
+               className="w-full h-auto object-contain rounded-lg"
+               priority
+             />
+              }
+             
             </div>
           </div>
         </div>
