@@ -25,7 +25,7 @@
     api: {
       // Authentication
       login: '/api/login',
-      register: '/api/auth/register',
+      register: '/api/register',
       logout: '/api/auth/logout',
       
       // Products
@@ -36,7 +36,7 @@
       // Categories/Taxons
       taxons: '/api/taxons',
       taxon_detail: '/api/taxons/[id]',
-      taxon_products: '/api/taxons/[id]/products',
+      taxon_products: (id:string|number)=>`/api/taxons/${id}/products`,
       
       // Cart/Orders
       current_order: '/api/orders/current',

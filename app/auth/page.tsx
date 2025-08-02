@@ -13,6 +13,8 @@ import { Eye, EyeOff, ArrowLeft, Mail, Lock, User } from "lucide-react"
 import Link from "next/link"
 import Image from "next/image"
 import {SOLIDUS_ROUTES} from "../../lib/routes"
+import { useUserStore } from "../store/userStore";
+
 
 export default function AuthPage() {
   const [isLogin, setIsLogin] = useState(true)
@@ -20,6 +22,7 @@ export default function AuthPage() {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState('');
+  const setUser = useUserStore((state)=> state.setUser)
   const router = useRouter();
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
@@ -30,17 +33,19 @@ export default function AuthPage() {
     const formData = new FormData(form)
 
 
-      const response = await fetch(SOLIDUS_ROUTES.api.login, {
+      const response = await fetch(isLogin?SOLIDUS_ROUTES.api.login:SOLIDUS_ROUTES.api.register, {
         method: 'POST',
         body: JSON.stringify(Object.fromEntries(formData)),
       });
 
-      const data = await response.json();
+      const data: { user: Record<string,string>; error?: string } = await response.json();
       setIsLoading(false);
       if (!response.ok) {
         setError(data.error || 'Login failed');
         throw new Error(data.error || 'Login failed');
       } else {
+   
+        setUser(data.user)
         router.push('/')
       }
   };

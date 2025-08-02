@@ -7,10 +7,15 @@ import { Search, ShoppingCart, ArrowRight, Star, Heart } from "lucide-react"
 import Image from "next/image"
 import Link from "next/link"
 import { useEffect, useState } from "react"
+import { SOLIDUS_ROUTES } from "../lib/routes"
+import { useProductStore } from "./store/useProductStore"
+
 
 export default function HomePage() {
   const [store, setStore] = useState<any>(null)
   const [error, setError] = useState<string | null>(null)
+  const setFeatureproducts = useProductStore(state=>state.setProducts)
+  const getFeatureproducts = useProductStore(state=>state.products)
   useEffect(() => {
     const fetchStore = async () => {
       try {
@@ -32,6 +37,28 @@ export default function HomePage() {
       }
     }
 
+    const fetchfeaturedproducts = async () => {
+      try {
+        const res = await fetch(SOLIDUS_ROUTES.api.products + `?taxon_id=${1}`, {
+          headers: {
+            Accept: "application/json",
+          }
+        })
+
+        if (!res.ok) {
+          throw new Error(`Failed to fetch: ${res.status}`)
+        }
+
+        const data = await res.json()
+        
+        setFeatureproducts(data)
+        
+      } catch (err: any) {
+        console.error(err)
+        setError(err.message)
+      }
+    }
+    fetchfeaturedproducts();
     fetchStore()
   }, [])
 
@@ -155,201 +182,57 @@ export default function HomePage() {
 
           {/* Product Grid */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
-            {/* Product 1 - Premium Wireless Headphones */}
-            <Card className="group hover:shadow-xl transition-all duration-300 border-0 shadow-md">
-              <CardContent className="p-0">
-                <div className="relative overflow-hidden rounded-t-lg">
-                  <Image
-                    src="/placeholder.svg?height=300&width=300"
-                    alt="Premium Wireless Headphones"
-                    width={300}
-                    height={300}
-                    className="w-full h-64 object-cover group-hover:scale-105 transition-transform duration-300"
-                  />
-                  <div className="absolute top-4 right-4">
-                    <Button
-                      size="icon"
-                      variant="secondary"
-                      className="rounded-full bg-white/80 backdrop-blur-sm hover:bg-white"
-                    >
-                      <Heart className="h-4 w-4" />
-                    </Button>
-                  </div>
-                  <Badge className="absolute top-4 left-4 bg-red-500 text-white">Sale</Badge>
-                </div>
-
-                <div className="p-6">
-                  <h3 className="font-semibold text-lg text-gray-900 mb-2">Premium Wireless Headphones</h3>
-
-                  <div className="flex items-center gap-2 mb-3">
-                    <div className="flex items-center">
-                      {[1, 2, 3, 4, 5].map((star) => (
-                        <Star key={star} className="h-4 w-4 fill-yellow-400 text-yellow-400" />
-                      ))}
-                    </div>
-                    <span className="text-sm text-gray-600">4.8 (128)</span>
-                  </div>
-
-                  <div className="flex items-center justify-between mb-4">
-                    <div className="flex items-center gap-2">
-                      <span className="text-2xl font-bold text-gray-900">$299</span>
-                      <span className="text-sm text-gray-500 line-through">$399</span>
-                    </div>
-                  </div>
-
-                  <Button className="w-full bg-purple-600 hover:bg-purple-700 text-white rounded-full">
-                    Add to Cart
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Product 2 - Smart Fitness Watch */}
-            <Card className="group hover:shadow-xl transition-all duration-300 border-0 shadow-md">
-              <CardContent className="p-0">
-                <div className="relative overflow-hidden rounded-t-lg">
-                  <Image
-                    src="/placeholder.svg?height=300&width=300"
-                    alt="Smart Fitness Watch"
-                    width={300}
-                    height={300}
-                    className="w-full h-64 object-cover group-hover:scale-105 transition-transform duration-300"
-                  />
-                  <div className="absolute top-4 right-4">
-                    <Button
-                      size="icon"
-                      variant="secondary"
-                      className="rounded-full bg-white/80 backdrop-blur-sm hover:bg-white"
-                    >
-                      <Heart className="h-4 w-4" />
-                    </Button>
-                  </div>
-                  <Badge className="absolute top-4 left-4 bg-blue-500 text-white">New</Badge>
-                </div>
-
-                <div className="p-6">
-                  <h3 className="font-semibold text-lg text-gray-900 mb-2">Smart Fitness Watch</h3>
-
-                  <div className="flex items-center gap-2 mb-3">
-                    <div className="flex items-center">
-                      {[1, 2, 3, 4, 5].map((star) => (
-                        <Star key={star} className="h-4 w-4 fill-yellow-400 text-yellow-400" />
-                      ))}
-                    </div>
-                    <span className="text-sm text-gray-600">4.9 (89)</span>
-                  </div>
-
-                  <div className="flex items-center justify-between mb-4">
-                    <div className="flex items-center gap-2">
-                      <span className="text-2xl font-bold text-gray-900">$199</span>
-                      <span className="text-sm text-gray-500 line-through">$249</span>
-                    </div>
-                  </div>
-
-                  <Button className="w-full bg-purple-600 hover:bg-purple-700 text-white rounded-full">
-                    Add to Cart
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Product 3 - Minimalist Backpack */}
-            <Card className="group hover:shadow-xl transition-all duration-300 border-0 shadow-md">
-              <CardContent className="p-0">
-                <div className="relative overflow-hidden rounded-t-lg">
-                  <Image
-                    src="/placeholder.svg?height=300&width=300"
-                    alt="Minimalist Backpack"
-                    width={300}
-                    height={300}
-                    className="w-full h-64 object-cover group-hover:scale-105 transition-transform duration-300"
-                  />
-                  <div className="absolute top-4 right-4">
-                    <Button
-                      size="icon"
-                      variant="secondary"
-                      className="rounded-full bg-white/80 backdrop-blur-sm hover:bg-white"
-                    >
-                      <Heart className="h-4 w-4" />
-                    </Button>
-                  </div>
-                  <Badge className="absolute top-4 left-4 bg-orange-500 text-white">Best Seller</Badge>
-                </div>
-
-                <div className="p-6">
-                  <h3 className="font-semibold text-lg text-gray-900 mb-2">Minimalist Backpack</h3>
-
-                  <div className="flex items-center gap-2 mb-3">
-                    <div className="flex items-center">
-                      {[1, 2, 3, 4, 5].map((star) => (
-                        <Star key={star} className="h-4 w-4 fill-yellow-400 text-yellow-400" />
-                      ))}
-                    </div>
-                    <span className="text-sm text-gray-600">4.7 (156)</span>
-                  </div>
-
-                  <div className="flex items-center justify-between mb-4">
-                    <div className="flex items-center gap-2">
-                      <span className="text-2xl font-bold text-gray-900">$89</span>
-                      <span className="text-sm text-gray-500 line-through">$120</span>
-                    </div>
-                  </div>
-
-                  <Button className="w-full bg-purple-600 hover:bg-purple-700 text-white rounded-full">
-                    Add to Cart
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Product 4 - Eco-Friendly Water Bottle */}
-            <Card className="group hover:shadow-xl transition-all duration-300 border-0 shadow-md">
-              <CardContent className="p-0">
-                <div className="relative overflow-hidden rounded-t-lg">
-                  <Image
-                    src="/placeholder.svg?height=300&width=300"
-                    alt="Eco-Friendly Water Bottle"
-                    width={300}
-                    height={300}
-                    className="w-full h-64 object-cover group-hover:scale-105 transition-transform duration-300"
-                  />
-                  <div className="absolute top-4 right-4">
-                    <Button
-                      size="icon"
-                      variant="secondary"
-                      className="rounded-full bg-white/80 backdrop-blur-sm hover:bg-white"
-                    >
-                      <Heart className="h-4 w-4" />
-                    </Button>
-                  </div>
-                  <Badge className="absolute top-4 left-4 bg-green-500 text-white">Eco</Badge>
-                </div>
-
-                <div className="p-6">
-                  <h3 className="font-semibold text-lg text-gray-900 mb-2">Eco-Friendly Water Bottle</h3>
-
-                  <div className="flex items-center gap-2 mb-3">
-                    <div className="flex items-center">
-                      {[1, 2, 3, 4, 5].map((star) => (
-                        <Star key={star} className="h-4 w-4 fill-yellow-400 text-yellow-400" />
-                      ))}
-                    </div>
-                    <span className="text-sm text-gray-600">4.6 (203)</span>
-                  </div>
-
-                  <div className="flex items-center justify-between mb-4">
-                    <div className="flex items-center gap-2">
-                      <span className="text-2xl font-bold text-gray-900">$25</span>
-                      <span className="text-sm text-gray-500 line-through">$35</span>
-                    </div>
-                  </div>
-
-                  <Button className="w-full bg-purple-600 hover:bg-purple-700 text-white rounded-full">
-                    Add to Cart
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
+            {getFeatureproducts.map(({name,images,id})=>(
+                    <Card key={id} className="group hover:shadow-xl transition-all duration-300 border-0 shadow-md">
+                    <CardContent className="p-0">
+                      <div className="relative overflow-hidden rounded-t-lg">
+                        
+                        <Image
+                          src={images? images[0]["url"]: ""}
+                          alt="Premium Wireless Headphones"
+                          width={300}
+                          height={300}
+                          className="w-full h-64 object-cover group-hover:scale-105 transition-transform duration-300"
+                        />
+                        <div className="absolute top-4 right-4">
+                          <Button
+                            size="icon"
+                            variant="secondary"
+                            className="rounded-full bg-white/80 backdrop-blur-sm hover:bg-white"
+                          >
+                            <Heart className="h-4 w-4" />
+                          </Button>
+                        </div>
+                        <Badge className="absolute top-4 left-4 bg-red-500 text-white">Sale</Badge>
+                      </div>
+      
+                      <div className="p-6">
+                        <h3 className="font-semibold text-lg text-gray-900 mb-2">{name}</h3>
+      
+                        <div className="flex items-center gap-2 mb-3">
+                          <div className="flex items-center">
+                            {[1, 2, 3, 4, 5].map((star) => (
+                              <Star key={star} className="h-4 w-4 fill-yellow-400 text-yellow-400" />
+                            ))}
+                          </div>
+                          <span className="text-sm text-gray-600">4.8 (128)</span>
+                        </div>
+      
+                        <div className="flex items-center justify-between mb-4">
+                          <div className="flex items-center gap-2">
+                            <span className="text-2xl font-bold text-gray-900">$299</span>
+                            <span className="text-sm text-gray-500 line-through">$399</span>
+                          </div>
+                        </div>
+      
+                        <Button className="w-full bg-purple-600 hover:bg-purple-700 text-white rounded-full">
+                          Add to Cart
+                        </Button>
+                      </div>
+                    </CardContent>
+                  </Card>
+            ))}
+          
           </div>
 
           <div className="text-center">
