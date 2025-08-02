@@ -1,7 +1,9 @@
 // next.config.js
 
 module.exports = {
-    env: process.env.API_URL,
+    env:{
+      API_URL: process.env.API_URL
+    },
     images: {
       remotePatterns: [
         {

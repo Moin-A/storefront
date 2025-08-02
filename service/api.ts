@@ -1,7 +1,7 @@
 export class SolidusAPI {
     baseURL: string | undefined;
     constructor() {
-        this.baseURL = process.env.AP_URL;
+        this.baseURL = process.env.API_URL;
       }
 
       async request(
@@ -26,31 +26,10 @@ export class SolidusAPI {
       if (response.ok) {
         return await response.json();
       } else {
-        throw new Error(`HTTP error! status: ${response.status}`);
+        const errorBody = await response.text();
+        const error = new Error(errorBody || 'Network response was not ok');
+        (error as any).status = response.status;
+        throw error;
       }
-
-      
-
-    }
-
-
-    async login(email:string, password:string) {
-      return this.request('/api/login', {
-        method: 'POST',
-        body: JSON.stringify({ email, password })
-      });
-    }
-  
-    async register(userData: Record<string, any>) {
-      return this.request('/api/register', {
-        method: 'POST',
-        body: JSON.stringify(userData)
-      });
-    }
-  
-    // Products
-    async getProducts(params = {}) {
-      const query = new URLSearchParams(params).toString();
-      return this.request(`/api/products${query ? `?${query}` : ''}`);
     }
 }

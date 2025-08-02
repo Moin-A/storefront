@@ -1,7 +1,7 @@
 "use client"
 
 import type React from "react"
-
+import { useRouter } from 'next/navigation';
 import { useState } from "react"
 import { Button } from "../../components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../../components/ui/card"
@@ -12,23 +12,38 @@ import { Checkbox } from "../../components/ui/checkbox"
 import { Eye, EyeOff, ArrowLeft, Mail, Lock, User } from "lucide-react"
 import Link from "next/link"
 import Image from "next/image"
+import {SOLIDUS_ROUTES} from "../../lib/routes"
 
 export default function AuthPage() {
   const [isLogin, setIsLogin] = useState(true)
   const [showPassword, setShowPassword] = useState(false)
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
+  const [error, setError] = useState('');
+  const router = useRouter();
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setIsLoading(true)
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    setIsLoading(true);
 
-    // Simulate API call
-    await new Promise((resolve) => setTimeout(resolve, 2000))
+    const form = event.currentTarget;
+    const formData = new FormData(form)
 
-    setIsLoading(false)
-    // Handle success/error here
-  }
+
+      const response = await fetch(SOLIDUS_ROUTES.api.login, {
+        method: 'POST',
+        body: JSON.stringify(Object.fromEntries(formData)),
+      });
+
+      const data = await response.json();
+      setIsLoading(false);
+      if (!response.ok) {
+        setError(data.error || 'Login failed');
+        throw new Error(data.error || 'Login failed');
+      } else {
+        router.push('/')
+      }
+  };
 
   const toggleAuthMode = () => {
     setIsLogin(!isLogin)

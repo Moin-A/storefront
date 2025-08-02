@@ -24,7 +24,7 @@
     
     api: {
       // Authentication
-      login: '/api/auth/login',
+      login: '/api/login',
       register: '/api/auth/register',
       logout: '/api/auth/logout',
       

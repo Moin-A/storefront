@@ -4,9 +4,8 @@ export async function GET(
   req: NextRequest,
   { params }: { params: { id: string } }
 ) {
-  const storeId = params.id;
-  debugger;
-  console.log("sjxjanjxajxjanj")
+  const { id: storeId } = await params;
+
   try {
     const response = await fetch(`http://0.0.0.0:3001/api/stores/${storeId}`, {
       headers: { Accept: "application/json" },
@@ -18,7 +17,7 @@ export async function GET(
         { status: response.status }
       );
     }
-    console.log({response})
+  
     const store = await response.json();
     return NextResponse.json(store);
   } catch (error) {
