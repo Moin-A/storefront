@@ -7,7 +7,7 @@ export async function GET(request: Request) {
     try {
         const api = new SolidusAPI();
         const [taxon_id] = await searchParams;
-        
+        const [taxon] = await searchParams;
         
        
         const requestConfig = {
@@ -18,8 +18,9 @@ export async function GET(request: Request) {
             },
             credentials: 'include' as RequestCredentials
         };
+        // /admin/products/:product_id/product_properties(.:format)
       
-        const response = await api.request(SOLIDUS_ROUTES.api.products + `?taxon_id=${taxon_id}`, requestConfig);
+        const response = await api.request(SOLIDUS_ROUTES.api.products + `?taxon_id=${taxon_id||taxon}`, requestConfig);
         
      
         return NextResponse.json(response, {

@@ -182,55 +182,66 @@ export default function HomePage() {
 
           {/* Product Grid */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
-            {getFeatureproducts.map(({name,images,id})=>(
-                    <Card key={id} className="group hover:shadow-xl transition-all duration-300 border-0 shadow-md">
-                    <CardContent className="p-0">
-                      <div className="relative overflow-hidden rounded-t-lg">
-                        
-                        <Image
-                          src={images? images[0]["url"]: ""}
-                          alt="Premium Wireless Headphones"
-                          width={300}
-                          height={300}
-                          className="w-full h-64 object-cover group-hover:scale-105 transition-transform duration-300"
-                        />
-                        <div className="absolute top-4 right-4">
-                          <Button
-                            size="icon"
-                            variant="secondary"
-                            className="rounded-full bg-white/80 backdrop-blur-sm hover:bg-white"
-                          >
-                            <Heart className="h-4 w-4" />
-                          </Button>
-                        </div>
-                        <Badge className="absolute top-4 left-4 bg-red-500 text-white">Sale</Badge>
+            {getFeatureproducts.map(({name,images,id,slug})=>(
+             <Link key={id} href={`/product/${slug}`}>
+             <Card
+                key={id}
+                className="cursor-pointer group transition-all duration-300 border border-gray-200 shadow-sm hover:shadow-md rounded-xl overflow-hidden"
+              >
+                <CardContent className="p-0">
+                  {/* Image Section */}
+                  <div className="relative">
+                    <Image
+                      src={images ? images[0]["url"] : ""}
+                      alt={name || "Product image"}
+                      width={300}
+                      height={300}
+                      className="w-full h-64 object-cover transition-transform duration-300 group-hover:scale-105"
+                    />
+              
+                    {/* Wishlist button */}
+                    <div className="absolute top-3 right-3">
+                      <Button
+                        size="icon"
+                        variant="secondary"
+                        className="rounded-full bg-white/70 backdrop-blur-md hover:bg-white transition-all shadow-sm"
+                      >
+                        <Heart className="h-4 w-4 text-gray-700" />
+                      </Button>
+                    </div>
+              
+                    {/* Sale Badge */}
+                    <Badge className="absolute top-3 left-3 bg-gradient-to-r from-red-500 to-pink-500 text-white text-xs font-medium px-2 py-1 rounded-full shadow">
+                      Sale
+                    </Badge>
+                  </div>
+              
+                  {/* Content */}
+                  <div className="p-5 space-y-2">
+                    {/* Product Name */}
+                    <h3 className="text-base font-semibold text-gray-900 group-hover:text-purple-600 transition-colors">
+                      {name}
+                    </h3>
+              
+                    {/* Rating */}
+                    <div className="flex items-center gap-2 text-sm text-gray-500">
+                      <div className="flex items-center">
+                        {[1, 2, 3, 4, 5].map((star) => (
+                          <Star key={star} className="h-4 w-4 fill-yellow-400 text-yellow-400" />
+                        ))}
                       </div>
-      
-                      <div className="p-6">
-                        <h3 className="font-semibold text-lg text-gray-900 mb-2">{name}</h3>
-      
-                        <div className="flex items-center gap-2 mb-3">
-                          <div className="flex items-center">
-                            {[1, 2, 3, 4, 5].map((star) => (
-                              <Star key={star} className="h-4 w-4 fill-yellow-400 text-yellow-400" />
-                            ))}
-                          </div>
-                          <span className="text-sm text-gray-600">4.8 (128)</span>
-                        </div>
-      
-                        <div className="flex items-center justify-between mb-4">
-                          <div className="flex items-center gap-2">
-                            <span className="text-2xl font-bold text-gray-900">$299</span>
-                            <span className="text-sm text-gray-500 line-through">$399</span>
-                          </div>
-                        </div>
-      
-                        <Button className="w-full bg-purple-600 hover:bg-purple-700 text-white rounded-full">
-                          Add to Cart
-                        </Button>
-                      </div>
-                    </CardContent>
-                  </Card>
+                      <span className="text-xs">(128)</span>
+                    </div>
+              
+                    {/* Price */}
+                    <div className="flex items-center gap-2">
+                      <span className="text-xl font-bold text-gray-900">$299</span>
+                      <span className="text-sm text-gray-400 line-through">$399</span>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+              </Link>
             ))}
           
           </div>
@@ -239,7 +250,7 @@ export default function HomePage() {
             <Button
               variant="outline"
               size="lg"
-              className="border-2 border-purple-600 text-purple-600 hover:bg-purple-600 hover:text-white px-8 py-6 text-lg font-semibold rounded-full bg-transparent"
+              className="border-2 border-purple-600 text-purple-600 hover:bg-purple-600 hover:text-white px-8 text-lg font-semibold rounded-full bg-transparent"
             >
               View All Products
               <ArrowRight className="ml-2 h-5 w-5" />

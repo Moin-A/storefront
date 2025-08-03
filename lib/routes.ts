@@ -30,8 +30,10 @@
       
       // Products
       products: '/api/products',
+      product: '/api/product',
       product_detail: '/api/products/[id]',
       product_variants: '/api/products/[id]/variants',
+      product_properties: (id:string|number)=>`/api/products/${id}/product_properties`,
       
       // Categories/Taxons
       taxons: '/api/taxons',
