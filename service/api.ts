@@ -23,13 +23,6 @@ export class SolidusAPI {
 
       const response = await fetch(`${this.baseURL}${endpoint}`, config);
 
-      if (response.ok) {
-        return await response.json();
-      } else {
-        const errorBody = await response.text();
-        const error = new Error(errorBody || 'Network response was not ok');
-        (error as any).status = response.status;
-        throw error;
-      }
+      return response;
     }
 }

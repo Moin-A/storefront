@@ -8,12 +8,13 @@ import { Search, ShoppingCart, BaggageClaim, Star, Heart, Plus, Minus, Shield, T
 import Image from "next/image"
 import Link from "next/link"
 import { SOLIDUS_ROUTES } from "../../../lib/routes"
+import getSymbolFromCurrency from 'currency-symbol-map';
 
 
 export default function ProductPage({ params }: { params: { id: string } }) {
   const [selectedImage, setSelectedImage] = useState(0)
   const [quantity, setQuantity] = useState(1)
-  const [selectedVariant, setSelectedVariant] = useState("standard")
+  const [selectedVariant, setSelectedVariant] = useState<string | number>("standard")
   const [details, setDetails] = useState<any>()
   const [error, setError] = useState<string | null>(null)
   const { id } = use(params)
@@ -150,19 +151,22 @@ export default function ProductPage({ params }: { params: { id: string } }) {
       <div className="bg-gray-50 border-b sticky top-[4.2rem] z-40 overflow-hidden">
         <div className="container mx-auto px-4 py-3">
           <nav className="flex items-center gap-2 text-sm text-gray-600">
-          { details?.primary_taxon?.permalink.split("/").map((part: string, index:number) => {
-             return   (index+1)!==details?.primary_taxon?.permalink.split("/").length ?
+          { (details?.primary_taxon ? details?.primary_taxon?.permalink.split("/") : details?.taxons[0]?.permalink.split("/") )?.map((part: string, index:number) => {
+            
+            let taxon_length =  details?.primary_taxon? details?.primary_taxon?.permalink.split("/").length : details?.taxons[0].permalink.split("/").length
+           
+             return   (index+1)!==taxon_length ?
                 (
-                  <>
+                 <span key={index}>
                 <Link
                   key={index}
-                  href={`/api/products?taxon=${part}`}
+                  href={`/products?taxon=${part}`}
                   className="text-gray-600 hover:text-purple-600 transition-colors"
                 >
                   {part}
                 </Link>
                 <span>/</span>
-                </>
+                </span>
                 
               ):
               (
@@ -180,13 +184,7 @@ export default function ProductPage({ params }: { params: { id: string } }) {
 
             
             }) }
-            {/* <Link href="/" className="hover:text-purple-600">Home</Link>
-            <span>/</span>
-            <Link href="/electronics" className="hover:text-purple-600">Electronics</Link>
-            <span>/</span>
-            <Link href="/headphones" className="hover:text-purple-600">Headphones</Link>
-            <span>/</span>
-            <span className="text-gray-900">{product.name}</span> */}
+            
           </nav>
         </div>
       </div>
@@ -199,8 +197,8 @@ export default function ProductPage({ params }: { params: { id: string } }) {
             {/* Main Image */}
             <div className="relative aspect-square bg-gray-50 rounded-lg overflow-hidden">
               <Image
-                src={product.images[selectedImage] || "/placeholder.svg"}
-                alt={product.name}
+                src={details?.images[selectedImage]['url'] || "/placeholder.svg"}
+                alt={details?.name||""}
                 fill
                 className="object-cover"
                 priority
@@ -220,7 +218,7 @@ export default function ProductPage({ params }: { params: { id: string } }) {
 
             {/* Thumbnail Images */}
             <div className="flex gap-2 overflow-x-auto">
-              {product.images.map((image, index) => (
+              {details?.images.map((image, index) => (
                 <button
                   key={index}
                   onClick={() => setSelectedImage(index)}
@@ -228,8 +226,8 @@ export default function ProductPage({ params }: { params: { id: string } }) {
                     }`}
                 >
                   <Image
-                    src={image || "/placeholder.svg"}
-                    alt={`${product.name} ${index + 1}`}
+                    src={image?.url || "/placeholder.svg"}
+                    alt={`${image?.alt} ${index + 1}`}
                     width={80}
                     height={80}
                     className="w-full h-full object-cover"
@@ -249,7 +247,7 @@ export default function ProductPage({ params }: { params: { id: string } }) {
                   Best Seller
                 </Badge>
               </div>
-              <h1 className="text-4xl font-bold text-gray-900 mb-4 leading-tight">{product.name}</h1>
+              <h1 className="text-4xl font-bold text-gray-900 mb-4 leading-tight">{details?.name}</h1>
               <div className="flex items-center gap-6 mb-6">
                 <div className="flex items-center gap-2">
                   {[1, 2, 3, 4, 5].map((star) => (
@@ -299,7 +297,7 @@ export default function ProductPage({ params }: { params: { id: string } }) {
             <div>
               <h3 className="font-semibold text-lg text-gray-900 mb-4">Choose Your Edition</h3>
               <div className="grid grid-cols-1 gap-3">
-                {product.variants.map((variant) => (
+                {details?.variants.map((variant:Record<string,string>) => (
                   <button
                     key={variant.id}
                     onClick={() => setSelectedVariant(variant.id)}
@@ -313,7 +311,9 @@ export default function ProductPage({ params }: { params: { id: string } }) {
                         <span className="font-semibold text-gray-900">{variant.name}</span>
                         <p className="text-sm text-gray-600 mt-1">Premium quality with enhanced features</p>
                       </div>
-                      <span className="text-sm font-bold text-black-600">₹{variant.price.toLocaleString()}</span>
+                      <span className="text-sm font-bold text-black-600">
+                        <span className="px-1">{getSymbolFromCurrency(variant?.cost_currency)}</span>
+                        {variant?.cost_price?.toLocaleString()}</span>
                     </div>
                   </button>
                 ))}

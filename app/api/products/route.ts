@@ -21,15 +21,11 @@ export async function GET(request: Request) {
         // /admin/products/:product_id/product_properties(.:format)
       
         const response = await api.request(SOLIDUS_ROUTES.api.products + `?taxon_id=${taxon_id||taxon}`, requestConfig);
-        
-     
-        return NextResponse.json(response, {
-            status: 200
-        });
-        
+        return response;
+
     } catch (error) {
         return NextResponse.json( 
-            { error: JSON.parse((error as any).message)},
+            { error: (error as any)},
             { status: (error as any)?.status || 500 }
         );
     }

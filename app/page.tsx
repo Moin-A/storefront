@@ -16,6 +16,7 @@ export default function HomePage() {
   const [error, setError] = useState<string | null>(null)
   const setFeatureproducts = useProductStore(state=>state.setProducts)
   const getFeatureproducts = useProductStore(state=>state.products)
+  
   useEffect(() => {
     const fetchStore = async () => {
       try {
@@ -48,7 +49,7 @@ export default function HomePage() {
         if (!res.ok) {
           throw new Error(`Failed to fetch: ${res.status}`)
         }
-
+         
         const data = await res.json()
         
         setFeatureproducts(data)
@@ -184,7 +185,7 @@ export default function HomePage() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
             {getFeatureproducts.map(({name,images,id,slug})=>(
              <Link key={id} href={`/product/${slug}`}>
-             <Card
+              <Card
                 key={id}
                 className="cursor-pointer group transition-all duration-300 border border-gray-200 shadow-sm hover:shadow-md rounded-xl overflow-hidden"
               >

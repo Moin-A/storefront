@@ -72,7 +72,11 @@
       // User
       user_profile: '/api/user',
       user_orders: '/api/user/orders',
-      user_addresses: '/api/user/addresses'
+      user_addresses: '/api/user/addresses',
+
+      //store
+
+      stores: '/api/stores'
     }
   };
   

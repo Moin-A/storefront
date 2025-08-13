@@ -1,4 +1,3 @@
-import { NextResponse } from "next/server";
 import { SolidusAPI } from '../../../../service/api';
 import {SOLIDUS_ROUTES} from "../../../../lib/routes";
 export async function GET(request: Request,
@@ -19,9 +18,7 @@ export async function GET(request: Request,
         const response = await api.request(`/api/products/${id}`, requestConfig);
         
      
-        return NextResponse.json(response, {
-            status: 200
-        });
+        return response;
         
     } catch (error) {
         console.log({error})

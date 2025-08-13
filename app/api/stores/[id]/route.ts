@@ -1,4 +1,7 @@
 import { type NextRequest, NextResponse } from "next/server";
+import { SolidusAPI } from "../../../../service/api";
+import { SOLIDUS_ROUTES } from "../../../../lib/routes";
+
 
 export async function GET(
   req: NextRequest,
@@ -6,10 +9,17 @@ export async function GET(
 ) {
   const { id: storeId } = await params;
 
+
+  const requestConfig = {
+    method: 'GET',
+    credentials: 'include' as RequestCredentials
+  };
+
+  const api = new SolidusAPI()
+
   try {
-    const response = await fetch(`http://0.0.0.0:3001/api/stores/${storeId}`, {
-      headers: { Accept: "application/json" },
-    });
+    const api = new SolidusAPI();
+    const response = await api.request(`${SOLIDUS_ROUTES.api.stores}/${storeId}`, requestConfig)
 
     if (!response.ok) {
       return NextResponse.json(

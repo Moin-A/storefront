@@ -15,6 +15,7 @@ function Card({ className, ...props }: React.ComponentProps<"div">) {
   )
 }
 
+
 function CardHeader({ className, ...props }: React.ComponentProps<"div">) {
   return (
     <div
@@ -65,11 +66,19 @@ function CardContent({ className, ...props }: React.ComponentProps<"div">) {
   return (
     <div
       data-slot="card-content"
-      className={cn("px-6", className)}
+      className={cn(
+        "px-6 py-4", // padding
+        "bg-white dark:bg-gray-800", // background for light/dark modes
+        "rounded-b-2xl", // rounded bottom edges (assuming header is above)
+        "text-gray-700 dark:text-gray-200", // text color
+        "leading-relaxed", // line height
+        className
+      )}
       {...props}
     />
   )
 }
+
 
 function CardFooter({ className, ...props }: React.ComponentProps<"div">) {
   return (
