@@ -9,14 +9,18 @@ import Link from "next/link"
 import { useEffect, useState } from "react"
 import { SOLIDUS_ROUTES } from "../lib/routes"
 import { useProductStore } from "./store/useProductStore"
+import { cn } from "../lib/utils"
+import { ImageCard } from "../components/ui/ImageCard"
+
 
 
 export default function HomePage() {
   const [store, setStore] = useState<any>(null)
   const [error, setError] = useState<string | null>(null)
-  const setFeatureproducts = useProductStore(state=>state.setProducts)
-  const getFeatureproducts = useProductStore(state=>state.products)
-  
+  const setFeatureproducts = useProductStore(state => state.setProducts)
+  const [loading, setLoading] = useState(true)
+  const getFeatureproducts = useProductStore(state => state.products)
+
   useEffect(() => {
     const fetchStore = async () => {
       try {
@@ -49,11 +53,8 @@ export default function HomePage() {
         if (!res.ok) {
           throw new Error(`Failed to fetch: ${res.status}`)
         }
-         
         const data = await res.json()
-        
         setFeatureproducts(data)
-        
       } catch (err: any) {
         console.error(err)
         setError(err.message)
@@ -156,16 +157,15 @@ export default function HomePage() {
             {/* Right Content - Hero Image */}
             <div className="relative">
               {store?.hero_image_url &&
-               <Image
-               src={store?.hero_image_url||null}
-               alt="Premium product collection"
-               width={600}
-               height={500}
-               className="w-full h-auto object-contain rounded-lg"
-               priority
-             />
+                <Image
+                  src={store?.hero_image_url || null}
+                  alt="Premium product collection"
+                  width={600}
+                  height={500}
+                  className="w-full h-auto object-contain rounded-lg"
+                  priority
+                />
               }
-             
             </div>
           </div>
         </div>
@@ -182,69 +182,51 @@ export default function HomePage() {
           </div>
 
           {/* Product Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
-            {getFeatureproducts.map(({name,images,id,slug})=>(
-             <Link key={id} href={`/product/${slug}`}>
-              <Card
-                key={id}
-                className="cursor-pointer group transition-all duration-300 border border-gray-200 shadow-sm hover:shadow-md rounded-xl overflow-hidden"
-              >
-                <CardContent className="p-0">
-                  {/* Image Section */}
-                  <div className="relative">
-                    <Image
-                      src={images ? images[0]["url"] : ""}
-                      alt={name || "Product image"}
-                      width={300}
-                      height={300}
-                      className="w-full h-64 object-cover transition-transform duration-300 group-hover:scale-105"
-                    />
-              
-                    {/* Wishlist button */}
-                    <div className="absolute top-3 right-3">
-                      <Button
-                        size="icon"
-                        variant="secondary"
-                        className="rounded-full bg-white/70 backdrop-blur-md hover:bg-white transition-all shadow-sm"
-                      >
-                        <Heart className="h-4 w-4 text-gray-700" />
-                      </Button>
+          <div className="flex overflow-x-auto gap-4 pb-4 scrollbar-hide">
+            {getFeatureproducts.map(({ name, images, id, slug }) => (
+              <Link key={id} href={`/product/${slug}`}>
+                <div
+                  key={id}
+                  className={cn(
+                    "cursor-pointer transition-all duration-300 border border-gray-200 shadow-sm hover:shadow-md rounded-lg overflow-hidden w-48 bg-white",
+                  )}>
+                  <div
+                    key={id}
+                    className={cn(
+                      "cursor-pointer transition-all duration-300 border border-gray-200 shadow-sm hover:shadow-md rounded-lg overflow-hidden w-48 bg-white",
+                    )}>
+                    {/* Image with skeleton */}
+                    <div className="relative w-full h-56 bg-gray-100">
+                      {loading && (
+                        <div className="absolute inset-0 animate-pulse bg-gradient-to-r from-gray-200 via-gray-300 to-gray-200" />
+                      )}
+                      <ImageCard
+                       images={images}
+                        alt={name || "Product image"}
+                        fill
+                        className={cn(
+                          "object-cover transition-opacity duration-500",
+                          loading ? "opacity-0" : "opacity-100"
+                        )}
+                        onLoadingComplete={() => setLoading(false)}
+                      />
                     </div>
-              
-                    {/* Sale Badge */}
-                    <Badge className="absolute top-3 left-3 bg-gradient-to-r from-red-500 to-pink-500 text-white text-xs font-medium px-2 py-1 rounded-full shadow">
-                      Sale
-                    </Badge>
-                  </div>
-              
-                  {/* Content */}
-                  <div className="p-5 space-y-2">
-                    {/* Product Name */}
-                    <h3 className="text-base font-semibold text-gray-900 group-hover:text-purple-600 transition-colors">
-                      {name}
-                    </h3>
-              
-                    {/* Rating */}
-                    <div className="flex items-center gap-2 text-sm text-gray-500">
-                      <div className="flex items-center">
-                        {[1, 2, 3, 4, 5].map((star) => (
-                          <Star key={star} className="h-4 w-4 fill-yellow-400 text-yellow-400" />
-                        ))}
+                    {/* Content */}
+                    <div className="p-3 flex flex-col gap-1 text-sm">
+                      <h3 className="font-medium leading-tight text-gray-900 line-clamp-2">
+                        {name}
+                      </h3>
+                      <div className="flex flex-col">
+                        <span className="text-lg font-semibold text-gray-900">{"price"}</span>
+                        <span className="text-xs text-gray-500">
+                          MRP: <span className="line-through">{"mrp"}</span> ({"discount"} off)
+                        </span>
                       </div>
-                      <span className="text-xs">(128)</span>
-                    </div>
-              
-                    {/* Price */}
-                    <div className="flex items-center gap-2">
-                      <span className="text-xl font-bold text-gray-900">$299</span>
-                      <span className="text-sm text-gray-400 line-through">$399</span>
                     </div>
                   </div>
-                </CardContent>
-              </Card>
+                </div>
               </Link>
             ))}
-          
           </div>
 
           <div className="text-center">

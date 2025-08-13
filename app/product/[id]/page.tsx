@@ -170,7 +170,7 @@ export default function ProductPage({ params }: { params: { id: string } }) {
                 
               ):
               (
-                <>
+                
                 <span
                   key={index}
                   className="cursor-pointer text-gray-600 hover:text-purple-600 transition-colors"
@@ -178,7 +178,7 @@ export default function ProductPage({ params }: { params: { id: string } }) {
                   {part}
                 </span>
                
-                </>
+                
                 
               )
 

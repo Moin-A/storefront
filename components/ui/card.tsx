@@ -90,6 +90,65 @@ function CardFooter({ className, ...props }: React.ComponentProps<"div">) {
   )
 }
 
+
+
+function ProductCard({ className, ...props }: React.ComponentProps<"div">) {
+  return (
+    <div
+      className={cn(
+        "bg-white border rounded-lg overflow-hidden shadow-sm w-48",
+        "flex flex-col",
+        className
+      )}
+      {...props}
+    />
+  )
+}
+
+function ProductCardImage({ src, alt }: { src: string; alt?: string }) {
+  return (
+    <div className="w-full h-56 overflow-hidden bg-gray-100">
+      <img
+        src={src}
+        alt={alt || ""}
+        className="w-full h-full object-cover"
+      />
+    </div>
+  )
+}
+
+function ProductCardContent({ className, ...props }: React.ComponentProps<"div">) {
+  return (
+    <div
+      className={cn(
+        "p-3 flex flex-col gap-1 text-sm",
+        className
+      )}
+      {...props}
+    />
+  )
+}
+
+function ProductCardTitle({ className, ...props }: React.ComponentProps<"h3">) {
+  return (
+    <h3
+      className={cn("font-medium leading-tight text-gray-900 line-clamp-2", className)}
+      {...props}
+    />
+  )
+}
+function ProductCardPrice({ price, mrp, discount }: { price: string; mrp: string; discount: string }) {
+  return (
+    <div className="flex flex-col">
+      <span className="text-lg font-semibold text-gray-900">{price}</span>
+      <span className="text-xs text-gray-500">
+        MRP: <span className="line-through">{mrp}</span> ({discount} off)
+      </span>
+    </div>
+  )
+}
+
+
 export {
   Card,
   CardHeader,
@@ -98,4 +157,9 @@ export {
   CardAction,
   CardDescription,
   CardContent,
+  ProductCardImage,
+  ProductCardPrice,
+  ProductCardTitle,
+  ProductCardContent,
+  ProductCard
 }
