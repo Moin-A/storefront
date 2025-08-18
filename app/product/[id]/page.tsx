@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState, use } from "react"
+import { useEffect, useState, use, useMemo, useCallback } from "react"
 import { Button } from "../../../components/ui/button"
 import { Card, CardContent } from "../../../components/ui/card"
 import { Badge } from "../../../components/ui/badge"
@@ -9,17 +9,31 @@ import Image from "next/image"
 import Link from "next/link"
 import { SOLIDUS_ROUTES } from "../../../lib/routes"
 import getSymbolFromCurrency from 'currency-symbol-map';
+import { cn } from "../../../lib/utils"
+import Option_filter from '../../../components/option_filter';
 
+export type SelectedOptions = {
+  [name: string]: {
+    optionTypeId: number;
+    optionValueId: number;
+  };
+};
 
 export default function ProductPage({ params }: { params: { id: string } }) {
   const [selectedImage, setSelectedImage] = useState(0)
   const [quantity, setQuantity] = useState(1)
-  const [selectedVariant, setSelectedVariant] = useState<string | number>("standard")
+  const [selectedVariant, setSelectedVariant] = useState<Record <string, any| undefined>>()
+  const [selectedOptions, setSelectedOptions] = useState<SelectedOptions>()
+  const [selectedTab, setSelectedTab] = useState<Record<string, any>>({ label: "description", id: 1, Component: ()=><div></div> })
   const [details, setDetails] = useState<any>()
   const [error, setError] = useState<string | null>(null)
+  const [loading, setLoading] = useState<boolean>(true)
   const { id } = use(params)
- 
+
+  const tabStyleSelected = useMemo(() => "border-purple-600 text-purple-600 font-medium  border-b-2", [])
+
   useEffect(() => {
+    const setDefaultTab = () => {setSelectedTab(tabs[0])}
     const fetchStore = async () => {
       try {
 
@@ -35,16 +49,53 @@ export default function ProductPage({ params }: { params: { id: string } }) {
         }
 
         const data = await res.json()
-        setDetails(data)
+        setDetails(data);
+        setSelectedVariant(data?.variants_including_master.find((item: any)=>item.is_master))       
       } catch (err: any) {
         console.error(err)
         setError(err.message)
       }
     }
     fetchStore()
+    setDefaultTab()
   }, [id])
 
-  
+  const handleSelect = useCallback(
+    (optionTypeId: number, optionValueId: number, name: string) => {
+      const newSelected = { ...selectedOptions, [name]: {optionTypeId, optionValueId} }
+      setSelectedOptions(newSelected)
+      if(name === "clothing-color") {
+        const match = details.variants_including_master.find((variant: any) =>
+          {return variant?.option_values?.some((item:any)=> {
+            return item.id == newSelected[item?.option_type?.name]?.optionValueId && item.option_type_id ==newSelected[item?.option_type?.name]?.optionTypeId 
+          })
+            
+          }
+        )
+        debugger
+        if (match) setSelectedVariant(match)
+      }
+      setSelectedImage(0)
+      
+    },
+    [selectedOptions, details]
+  )
+
+  const tabs = [
+    { id: 1, label: 'description', Component: ({details}: {details?: {description?: string}}) => <div>{details?.description}</div> },
+    { id: 2, label: 'specification', Component: ({details}: {details?: {product_properties?: {value: string, property?: {name: string}}[]}}) => <div>
+       <div className="grid md:grid-cols-2 gap-4">
+                    {details?.product_properties?.map((property, index) => (
+                      <div key={index} className="flex justify-between py-2 border-b border-gray-100">
+                        <span className="font-medium text-gray-900">{property?.property?.name}</span>
+                        <span className="text-gray-600">{property?.value}</span>
+                      </div>
+                    ))}
+                  </div>
+    </div> },
+    { id: 3, label: 'Documents', Component: () => <div>Reviews</div> },
+  ];
+
   const product = {
     id: 1,
     name: "Premium Wireless Headphones",
@@ -104,6 +155,8 @@ export default function ProductPage({ params }: { params: { id: string } }) {
     }
   }
 
+  console.log(selectedVariant)
+
   return (
     <div className="min-h-screen bg-white">
       {/* Header - Same as other pages */}
@@ -151,40 +204,40 @@ export default function ProductPage({ params }: { params: { id: string } }) {
       <div className="bg-gray-50 border-b sticky top-[4.2rem] z-40 overflow-hidden">
         <div className="container mx-auto px-4 py-3">
           <nav className="flex items-center gap-2 text-sm text-gray-600">
-          { (details?.primary_taxon ? details?.primary_taxon?.permalink.split("/") : details?.taxons[0]?.permalink.split("/") )?.map((part: string, index:number) => {
-            
-            let taxon_length =  details?.primary_taxon? details?.primary_taxon?.permalink.split("/").length : details?.taxons[0].permalink.split("/").length
-           
-             return   (index+1)!==taxon_length ?
-                (
-                 <span key={index}>
-                <Link
-                  key={index}
-                  href={`/products?taxon=${part}`}
-                  className="text-gray-600 hover:text-purple-600 transition-colors"
-                >
-                  {part}
-                </Link>
-                <span>/</span>
-                </span>
-                
-              ):
-              (
-                
-                <span
-                  key={index}
-                  className="cursor-pointer text-gray-600 hover:text-purple-600 transition-colors"
-                >
-                  {part}
-                </span>
-               
-                
-                
-              )
+            {(details?.primary_taxon ? details?.primary_taxon?.permalink.split("/") : details?.taxons[0]?.permalink.split("/"))?.map((part: string, index: number) => {
 
-            
-            }) }
-            
+              let taxon_length = details?.primary_taxon ? details?.primary_taxon?.permalink.split("/").length : details?.taxons[0].permalink.split("/").length
+
+              return (index + 1) !== taxon_length ?
+                (
+                  <span key={index}>
+                    <Link
+                      key={index}
+                      href={`/products?taxon=${part}`}
+                      className="text-gray-600 hover:text-purple-600 transition-colors"
+                    >
+                      {part}
+                    </Link>
+                    <span>/</span>
+                  </span>
+
+                ) :
+                (
+
+                  <span
+                    key={index}
+                    className="cursor-pointer text-gray-600 hover:text-purple-600 transition-colors"
+                  >
+                    {part}
+                  </span>
+
+
+
+                )
+
+
+            })}
+
           </nav>
         </div>
       </div>
@@ -196,12 +249,19 @@ export default function ProductPage({ params }: { params: { id: string } }) {
           <div className="space-y-4 md:sticky md:top-[9rem] self-start overflow-hidden">
             {/* Main Image */}
             <div className="relative aspect-square bg-gray-50 rounded-lg overflow-hidden">
+               {loading && (
+                        <div className="absolute inset-0 animate-pulse bg-gradient-to-r from-gray-200 via-gray-300 to-gray-200" />
+               )}
               <Image
-                src={details?.images[selectedImage]['url'] || "/placeholder.svg"}
-                alt={details?.name||""}
+                src={selectedVariant?.images? selectedVariant?.images[selectedImage]?.url : "/placeholder.svg"}
+                alt={details?.name || ""}
                 fill
-                className="object-cover"
+                className={cn(
+                  "object-cover transition-opacity duration-500",
+                  loading ? "opacity-0" : "opacity-100"
+                )}
                 priority
+                onLoadingComplete={() => setLoading(false)}
               />
               <div className="absolute top-4 right-4 flex gap-2">
                 <Button size="icon" variant="secondary" className="rounded-full bg-white/80 backdrop-blur-sm">
@@ -218,7 +278,7 @@ export default function ProductPage({ params }: { params: { id: string } }) {
 
             {/* Thumbnail Images */}
             <div className="flex gap-2 overflow-x-auto">
-              {details?.images.map((image, index) => (
+              {selectedVariant?.images.map((image, index) => (
                 <button
                   key={index}
                   onClick={() => setSelectedImage(index)}
@@ -264,7 +324,8 @@ export default function ProductPage({ params }: { params: { id: string } }) {
             <div className="bg-gradient-to-br from-purple-50 to-pink-50 p-6 rounded-2xl border border-purple-100 shadow-sm">
               <div className="flex items-end gap-4 mb-3">
                 <span className="text-4xl font-extrabold text-gray-900 tracking-tight">
-                  ₹{product.price.toLocaleString()}
+                  <span className="px-1">{getSymbolFromCurrency(details?.master?.cost_currency)}</span>
+                  {details?.master?.cost_price}
                 </span>
 
                 {product.originalPrice > product.price && (
@@ -292,18 +353,18 @@ export default function ProductPage({ params }: { params: { id: string } }) {
               </div>
             </div>
 
-
+            <Option_filter option_types={details?.option_types} selectedOptions={selectedOptions} handleSelect = {handleSelect}/> 
             {/* Variants */}
-            <div>
+            {/* <div>
               <h3 className="font-semibold text-lg text-gray-900 mb-4">Choose Your Edition</h3>
               <div className="grid grid-cols-1 gap-3">
-                {details?.variants.map((variant:Record<string,string>) => (
+                {details?.variants_including_master.map((variant: Record<string, string>) => (
                   <button
                     key={variant.id}
-                    onClick={() => setSelectedVariant(variant.id)}
-                    className={`p-4 border-1 rounded-sm cursor-pointer text-left transition-all duration-200 ${selectedVariant === variant.id
-                        ? "border-purple-500 bg-purple-50 shadow-sm"
-                        : "border-gray-200 hover:border-purple-300 hover:shadow-sm"
+                    onClick={() => setSelectedVariant(variant)}
+                    className={`p-4 border-1 rounded-sm cursor-pointer text-left transition-all duration-200 cursor-pointer ${selectedVariant.id === variant.id
+                      ? "border-purple-500 bg-purple-50 shadow-sm"
+                      : "border-gray-200 hover:border-purple-300 hover:shadow-sm"
                       }`}
                   >
                     <div className="flex justify-between items-center">
@@ -318,10 +379,10 @@ export default function ProductPage({ params }: { params: { id: string } }) {
                   </button>
                 ))}
               </div>
-            </div>
+            </div> */}
 
             {/* Color Selection */}
-            <div>
+            {/* <div>
               <h3 className="font-semibold text-lg text-gray-900 mb-4">Available Colors</h3>
               <div className="flex gap-4">
                 {product.colors.map((color) => (
@@ -335,7 +396,8 @@ export default function ProductPage({ params }: { params: { id: string } }) {
                   </div>
                 ))}
               </div>
-            </div>
+            </div> */}
+
 
             {/* Quantity & Actions */}
             <div className="space-y-6">
@@ -452,30 +514,20 @@ export default function ProductPage({ params }: { params: { id: string } }) {
           </div>
         </div>
 
-        {/* Product Details Tabs */}
-        <div className="mt-16">
-          <div className="border-b border-gray-200">
-            <nav className="flex gap-8">
-              <button className="py-4 px-1 border-b-2 border-purple-600 text-purple-600 font-medium">
-                Description
-              </button>
-              <button className="py-4 px-1 text-gray-600 hover:text-gray-900">Specifications</button>
-              <button className="py-4 px-1 text-gray-600 hover:text-gray-900">Reviews ({product.reviews})</button>
-            </nav>
-          </div>
-
-          <div className="py-8">
-            <div className="prose max-w-none">
-              <p className="text-gray-700 leading-relaxed mb-6">{product.description}</p>
-
-              <h4 className="text-lg font-semibold text-gray-900 mb-4">Technical Specifications</h4>
-              <div className="grid md:grid-cols-2 gap-4">
-                {Object.entries(product.specifications).map(([key, value]) => (
-                  <div key={key} className="flex justify-between py-2 border-b border-gray-100">
-                    <span className="font-medium text-gray-900">{key}</span>
-                    <span className="text-gray-600">{value}</span>
-                  </div>
+        <div>
+          <div className="mt-16">
+            <div className="border-b border-gray-200">
+              <nav className="flex gap-8">
+                {tabs.map(({ id, label, Component }) => (
+                  <button key={id} onClick={() => { setSelectedTab({ id, label, Component }) }} className={`py-4 px-1 text-gray-600 cursor-pointer hover:text-gray-900${selectedTab.id === id && tabStyleSelected}`}>
+                    {label}
+                  </button>
                 ))}
+              </nav>
+              <div className="py-8 h-48">
+                <div className="prose max-w-none">                  
+                  {selectedTab?.Component && <selectedTab.Component details = {details} name = "moin" />}
+                </div>
               </div>
             </div>
           </div>
@@ -484,5 +536,3 @@ export default function ProductPage({ params }: { params: { id: string } }) {
     </div>
   )
 }
-
-
