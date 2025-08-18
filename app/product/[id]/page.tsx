@@ -63,19 +63,19 @@ export default function ProductPage({ params }: { params: { id: string } }) {
   const handleSelect = useCallback(
     (optionTypeId: number, optionValueId: number, name: string) => {
       const newSelected = { ...selectedOptions, [name]: {optionTypeId, optionValueId} }
-      setSelectedOptions(newSelected)
+      setSelectedOptions(newSelected)     
       if(name === "clothing-color") {
         const match = details.variants_including_master.find((variant: any) =>
           {return variant?.option_values?.some((item:any)=> {
-            return item.id == newSelected[item?.option_type?.name]?.optionValueId && item.option_type_id ==newSelected[item?.option_type?.name]?.optionTypeId 
+            return item.id == newSelected["clothing-color"]?.optionValueId && item.option_type_id ==newSelected["clothing-color"]?.optionTypeId 
           })
             
           }
         )
-        debugger
+        setSelectedImage(0)
         if (match) setSelectedVariant(match)
       }
-      setSelectedImage(0)
+     
       
     },
     [selectedOptions, details]
