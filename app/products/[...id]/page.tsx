@@ -1,22 +1,27 @@
 "use client"
 
-import { useState } from "react"
-import { Button } from "../../components/ui/button"
-import { Card, CardContent } from "../../components/ui/card"
-import { Badge } from "../../components/ui/badge"
-import { Input } from "../../components/ui/input"
-import { Checkbox } from "../../components/ui/checkbox"
-import { Label } from "../../components/ui/label"
-import { Slider } from "../../components/ui/slider"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../../components/ui/select"
+import { useState, useEffect, use } from "react"
+import { Button } from "../../../components/ui/button"
+import { Card, CardContent } from "../../../components/ui/card"
+import { Badge } from "../../../components/ui/badge"
+import { Input } from "../../../components/ui/input"
+import { Checkbox } from "../../../components/ui/checkbox"
+import { Label } from "../../../components/ui/label"
+import { Slider } from "../../../components/ui/slider"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../../../components/ui/select"
 import { Search, ShoppingCart, Star, Heart, Filter, ChevronDown } from "lucide-react"
 import Image from "next/image"
 import Link from "next/link"
+import { SOLIDUS_ROUTES } from '../../../lib/routes';
 
-export default function GamesPage() {
+
+export default function GamesPage({ params }: { params: { id: string } }) {
   const [priceRange, setPriceRange] = useState([299, 19999])
   const [inStock, setInStock] = useState(false)
+  const [items, setItems] = useState<any>(null)
+  const [error, setError] = useState<any>("")
   const [condition, setCondition] = useState("")
+  const { id } = use(params)
 
   const topRatedProducts = [
     {
@@ -147,6 +152,28 @@ export default function GamesPage() {
     },
   ]
 
+  useEffect(()=>{
+    const fetchProducts = async () => {
+      try {
+        const res = await fetch(`${SOLIDUS_ROUTES.api.products}?perma_link=${id.join("/")}`, {
+          headers: {
+            Accept: "application/json",
+          }
+        })
+
+        if (!res.ok) {
+          throw new Error(`Failed to fetch: ${res.status}`)
+        }
+        const data = await res.json()
+        setItems(data)
+      } catch (err: any) {
+        console.error(err)
+        setError(err.message)
+      }
+    }
+    fetchProducts()
+  },[])
+
   return (
     <div className="min-h-screen bg-white">
       {/* Header - Same as homepage */}
@@ -155,7 +182,7 @@ export default function GamesPage() {
           <div className="flex items-center justify-between">
             {/* Logo */}
             <Link href="/" className="flex items-center gap-2">
-              <div className="w-8 h-8 bg-gradient-to-br from-purple-500 to-purple-600 rounded-lg flex items-center justify-center">
+              <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg flex items-center justify-center">
                 <div className="w-4 h-4 bg-white rounded-sm"></div>
               </div>
               <span className="text-xl font-semibold text-gray-900">Store</span>
@@ -163,29 +190,29 @@ export default function GamesPage() {
 
             {/* Main Navigation */}
             <nav className="hidden md:flex items-center gap-8">
-              <Link href="/" className="text-gray-600 hover:text-purple-600 transition-colors">
+              <Link href="/" className="text-gray-600 hover:text-blue-600 transition-colors">
                 Home
               </Link>
-              <Link href="/shop" className="text-gray-600 hover:text-purple-600 transition-colors">
+              <Link href="/shop" className="text-gray-600 hover:text-blue-600 transition-colors">
                 Shop
               </Link>
-              <Link href="/games" className="text-gray-900 font-medium hover:text-purple-600 transition-colors">
+              <Link href="/games" className="text-gray-900 font-medium hover:text-blue-600 transition-colors">
                 Games
               </Link>
-              <Link href="/about" className="text-gray-600 hover:text-purple-600 transition-colors">
+              <Link href="/about" className="text-gray-600 hover:text-blue-600 transition-colors">
                 About
               </Link>
-              <Link href="/contact" className="text-gray-600 hover:text-purple-600 transition-colors">
+              <Link href="/contact" className="text-gray-600 hover:text-blue-600 transition-colors">
                 Contact
               </Link>
             </nav>
 
             {/* Actions */}
             <div className="flex items-center gap-4">
-              <Button variant="ghost" size="icon" className="text-gray-600 hover:text-purple-600">
+              <Button variant="ghost" size="icon" className="text-gray-600 hover:text-blue-600">
                 <Search className="h-5 w-5" />
               </Button>
-              <Button variant="ghost" size="icon" className="text-gray-600 hover:text-purple-600">
+              <Button variant="ghost" size="icon" className="text-gray-600 hover:text-blue-600">
                 <ShoppingCart className="h-5 w-5" />
               </Button>
             </div>
@@ -196,47 +223,47 @@ export default function GamesPage() {
         <div className="bg-gray-50 border-t border-gray-100">
           <div className="container mx-auto px-4">
             <div className="flex items-center gap-6 py-3 overflow-x-auto mx-auto justify-center">
-              <div className="flex items-center gap-1 hover:text-purple-600 cursor-pointer whitespace-nowrap">
+              <div className="flex items-center gap-1 hover:text-blue-600 cursor-pointer whitespace-nowrap">
                 <span className="font-medium text-sm">PLAYSTATION</span>
                 <ChevronDown className="h-4 w-4" />
               </div>
-              <div className="flex items-center gap-1 hover:text-purple-600 cursor-pointer whitespace-nowrap">
+              <div className="flex items-center gap-1 hover:text-blue-600 cursor-pointer whitespace-nowrap">
                 <span className="font-medium text-sm">XBOX</span>
                 <ChevronDown className="h-4 w-4" />
               </div>
-              <div className="flex items-center gap-1 hover:text-purple-600 cursor-pointer whitespace-nowrap">
+              <div className="flex items-center gap-1 hover:text-blue-600 cursor-pointer whitespace-nowrap">
                 <span className="font-medium text-sm">NINTENDO</span>
                 <ChevronDown className="h-4 w-4" />
               </div>
-              <Link href="#" className="font-medium text-sm hover:text-purple-600 whitespace-nowrap">
+              <Link href="#" className="font-medium text-sm hover:text-blue-600 whitespace-nowrap">
                 SELL
               </Link>
-              <div className="flex items-center gap-1 hover:text-purple-600 cursor-pointer whitespace-nowrap">
+              <div className="flex items-center gap-1 hover:text-blue-600 cursor-pointer whitespace-nowrap">
                 <span className="font-medium text-sm">CONSOLES</span>
                 <ChevronDown className="h-4 w-4" />
               </div>
-              <div className="flex items-center gap-1 hover:text-purple-600 cursor-pointer whitespace-nowrap">
+              <div className="flex items-center gap-1 hover:text-blue-600 cursor-pointer whitespace-nowrap">
                 <span className="font-medium text-sm">REPAIRS</span>
                 <ChevronDown className="h-4 w-4" />
               </div>
-              <div className="flex items-center gap-1 hover:text-purple-600 cursor-pointer whitespace-nowrap">
+              <div className="flex items-center gap-1 hover:text-blue-600 cursor-pointer whitespace-nowrap">
                 <span className="font-medium text-sm">PC</span>
                 <ChevronDown className="h-4 w-4" />
               </div>
-              <Link href="#" className="font-medium text-sm hover:text-purple-600 whitespace-nowrap">
+              <Link href="#" className="font-medium text-sm hover:text-blue-600 whitespace-nowrap">
                 LAPTOPS
               </Link>
-              <div className="flex items-center gap-1 hover:text-purple-600 cursor-pointer whitespace-nowrap">
+              <div className="flex items-center gap-1 hover:text-blue-600 cursor-pointer whitespace-nowrap">
                 <span className="font-medium text-sm">ELECTRONICS</span>
                 <ChevronDown className="h-4 w-4" />
               </div>
-              <Link href="#" className="font-medium text-sm hover:text-purple-600 whitespace-nowrap">
+              <Link href="#" className="font-medium text-sm hover:text-blue-600 whitespace-nowrap">
                 DIGITAL
               </Link>
-              <Link href="#" className="font-medium text-sm hover:text-purple-600 whitespace-nowrap">
+              <Link href="#" className="font-medium text-sm hover:text-blue-600 whitespace-nowrap">
                 OPEN BOX
               </Link>
-              <Link href="#" className="font-medium text-sm hover:text-purple-600 whitespace-nowrap">
+              <Link href="#" className="font-medium text-sm hover:text-blue-600 whitespace-nowrap">
                 COLLECTIBLE
               </Link>
             </div>
@@ -249,7 +276,7 @@ export default function GamesPage() {
         <div className="container mx-auto px-4">
           <div className="text-center">
             <h1 className="text-4xl md:text-5xl font-bold mb-4">
-              <span className="bg-gradient-to-r from-purple-600 via-purple-500 to-purple-400 bg-clip-text text-transparent">
+              <span className="bg-gradient-to-r from-blue-600 via-blue-500 to-blue-400 bg-clip-text text-transparent">
                 Gaming Collection
               </span>
             </h1>
@@ -258,7 +285,7 @@ export default function GamesPage() {
             </p>
             <div className="flex items-center justify-center gap-4 text-sm text-gray-600">
               <span>Showing 1 - 12 of 1135 results</span>
-              <Badge className="bg-purple-100 text-purple-700">Free EMI Available</Badge>
+              <Badge className="bg-blue-100 text-purple-700">Free EMI Available</Badge>
             </div>
           </div>
         </div>
@@ -273,7 +300,7 @@ export default function GamesPage() {
               <CardContent className="p-6">
                 <h3 className="font-bold text-lg mb-4 text-gray-900">Top Rated Products</h3>
                 <div className="space-y-4">
-                  {topRatedProducts.map((product) => (
+                  {topRatedProducts.splice(0,2).map((product) => (
                     <div
                       key={product.id}
                       className="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-50 transition-colors"
@@ -296,7 +323,7 @@ export default function GamesPage() {
                           {product.originalPrice && (
                             <span className="text-xs text-gray-500 line-through">{product.originalPrice}</span>
                           )}
-                          <span className="text-sm font-bold text-purple-600">{product.salePrice}</span>
+                          <span className="text-sm font-bold text-blue-600">{product.salePrice}</span>
                         </div>
                       </div>
                     </div>
@@ -306,10 +333,10 @@ export default function GamesPage() {
             </Card>
 
             {/* Filters */}
-            <Card className="shadow-md border-0">
+            <Card className="shadow-md border-0 sticky top-32">
               <CardContent className="p-6">
                 <div className="flex items-center gap-2 mb-4">
-                  <Filter className="h-5 w-5 text-purple-600" />
+                  <Filter className="h-5 w-5 text-blue-600" />
                   <h3 className="font-bold text-lg text-gray-900">Filters</h3>
                 </div>
 
@@ -326,8 +353,8 @@ export default function GamesPage() {
                       className="w-full"
                     />
                     <div className="flex items-center justify-between text-sm">
-                      <span className="bg-purple-100 text-purple-700 px-3 py-1 rounded-full">Rs. {priceRange[0]}</span>
-                      <span className="bg-purple-100 text-purple-700 px-3 py-1 rounded-full">Rs. {priceRange[1]}</span>
+                      <span className="bg-blue-100 text-purple-700 px-3 py-1 rounded-full">Rs. {priceRange[0]}</span>
+                      <span className="bg-blue-100 text-purple-700 px-3 py-1 rounded-full">Rs. {priceRange[1]}</span>
                     </div>
                   </div>
                 </div>
@@ -397,17 +424,19 @@ export default function GamesPage() {
 
             {/* Products Grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-              {products.map((product) => (
+              {items?.map((product) => (
                 <Card key={product.id} className="group hover:shadow-xl transition-all duration-300 border-0 shadow-md">
                   <CardContent className="p-0">
                     <div className="relative overflow-hidden rounded-t-lg">
+                    <Link key={id} href={`/product/${product.slug}`}>
                       <Image
-                        src={product.image || "/placeholder.svg"}
+                        src={product.images[0]["url"] || "/placeholder.svg"}
                         alt={product.name}
                         width={200}
                         height={200}
                         className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300"
                       />
+                    </Link>  
 
                       {/* Wishlist Button */}
                       <div className="absolute top-4 right-4">
@@ -422,12 +451,12 @@ export default function GamesPage() {
 
                       {/* Badges */}
                       <div className="absolute top-4 left-4 flex flex-col gap-1">
-                        {product.badges.map((badge, index) => (
+                        {product?.badges?.map((badge, index) => (
                           <Badge
                             key={index}
                             className={`text-xs ${
                               badge === "Sale"
-                                ? "bg-red-500 text-white"
+                                ? "bg-blue-500 text-white"
                                 : badge === "Pre-owned"
                                   ? "bg-orange-500 text-white"
                                   : badge === "Best Seller"
@@ -452,28 +481,28 @@ export default function GamesPage() {
                           ))}
                         </div>
                         <span className="text-sm text-gray-600">
-                          {product.rating} ({product.reviews})
+                          {product.rating || 4.5} ({product.reviews ||4.6})
                         </span>
                       </div>
 
                       {/* Price */}
                       <div className="flex items-center gap-2 mb-4">
                         <span className="text-2xl font-bold text-gray-900">{product.price}</span>
-                        {product.originalPrice && (
-                          <span className="text-sm text-gray-500 line-through">{product.originalPrice}</span>
+                        {product.price && (
+                          <span className="text-sm text-gray-500 line-through">{product.price}</span>
                         )}
                       </div>
 
                       {/* Status and Button */}
                       <div className="flex items-center justify-between">
                         <span
-                          className={`text-xs px-3 py-1 rounded-full ${
+                          className={`text-xs px-3 py-1 rounded-sm ${
                             product.status === "In Stock" ? "bg-green-100 text-green-800" : "bg-blue-100 text-blue-800"
                           }`}
                         >
-                          {product.status}
+                          {product.status || 'avaialable'}
                         </span>
-                        <Button size="sm" className="bg-purple-600 hover:bg-purple-700 text-white rounded-full px-6">
+                        <Button size="sm" className="bg-blue-600 hover:bg-blue-700 text-white rounded-sm px-6">
                           Add to Cart
                         </Button>
                       </div>
@@ -488,7 +517,7 @@ export default function GamesPage() {
               <Button
                 variant="outline"
                 size="lg"
-                className="border-2 border-purple-600 text-purple-600 hover:bg-purple-600 hover:text-white px-8 py-6 text-lg font-semibold rounded-full bg-transparent"
+                className="border-2 border-blue-600 text-blue-600 hover:bg-blue-600 hover:text-white px-8 py-6 text-lg font-semibold rounded-full bg-transparent"
               >
                 Load More Games
               </Button>
@@ -498,7 +527,7 @@ export default function GamesPage() {
       </div>
 
       {/* Newsletter Section - Same as homepage */}
-      <section className="py-16 bg-gradient-to-r from-purple-600 to-purple-700">
+      <section className="py-16 bg-gradient-to-r from-blue-600 to-purple-700">
         <div className="container mx-auto px-4 text-center">
           <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">Stay Updated</h2>
           <p className="text-xl text-purple-100 mb-8 max-w-2xl mx-auto">
@@ -511,7 +540,7 @@ export default function GamesPage() {
               placeholder="Enter your email"
               className="flex-1 px-6 py-4 rounded-full text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-white border-0"
             />
-            <Button className="bg-white text-purple-600 hover:bg-gray-100 px-8 py-4 rounded-full font-semibold">
+            <Button className="bg-white text-blue-600 hover:bg-gray-100 px-8 py-4 rounded-full font-semibold">
               Subscribe
             </Button>
           </div>

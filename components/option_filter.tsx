@@ -8,7 +8,6 @@ interface Props {
 
 function Option_filter({option_types, handleSelect, selectedOptions}: Props) {
     
-
     const renderFilter = (index: number, option_type: { name: any; option_values?: any }) => {
 
         switch (option_type?.name) {
@@ -42,7 +41,7 @@ const color_filter = (option: any, index: number, handleSelect:Function, selecte
             {option?.option_values.map((item: any) => (
                 <div key={item.presentation} className="text-center">
                     <button
-                        className={`w-12 h-12 rounded-full border-3 border-gray-300 hover:border-purple-500 transition-colors shadow-md hover:shadow-lg ${selectedOptions?.optionValueId == item.id && "border-purple-500"}` }
+                        className={`w-12 h-12 rounded-full border-3 cursor-pointer  hover:border-blue-500 transition-colors shadow-md hover:shadow-lg ${selectedOptions?.optionValueId == item.id && "border-blue-500"}` }
                         style={{ backgroundColor: item?.presentation }}
                         title={item?.name}
                         onClick = {() => handleSelect(item.option_type_id, item.id, option.name)}
@@ -57,8 +56,7 @@ const color_filter = (option: any, index: number, handleSelect:Function, selecte
 
 
 const size_filter = (option: any, index: number, handleSelect: Function, selectedOptions: {optionTypeId: number, optionValueId: number}) => (
-    <div key={index}>
-        
+    <div key={index}>   
       <h3 className="font-semibold text-lg text-gray-900 mb-2 mt-4">
         {`Available ${option.presentation}`}
       </h3>
@@ -66,7 +64,7 @@ const size_filter = (option: any, index: number, handleSelect: Function, selecte
         {option.option_values.map((item: any) => (
           <button
             key={item.presentation}
-            className={`px-4 py-2 border-2 border-gray-300 rounded-lg text-sm font-medium hover:border-purple-500 hover:text-purple-600 transition-colors shadow-sm ${selectedOptions?.optionValueId == item.id && "border-purple-500"}`}
+            className={`px-4 py-2 border-2 cursor-pointer rounded-lg text-sm font-medium hover:border-blue-500 hover:text-blue-600 transition-colors shadow-sm ${selectedOptions?.optionValueId == item.id && "border-blue-500"}`}
             title={item.name}
             onClick = {() => handleSelect(item.option_type_id, item.id, option.name)}
           >

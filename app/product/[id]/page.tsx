@@ -23,14 +23,14 @@ export default function ProductPage({ params }: { params: { id: string } }) {
   const [selectedImage, setSelectedImage] = useState(0)
   const [quantity, setQuantity] = useState(1)
   const [selectedVariant, setSelectedVariant] = useState<Record <string, any| undefined>>()
-  const [selectedOptions, setSelectedOptions] = useState<SelectedOptions>()
+  const [selectedOptions, setSelectedOptions] = useState<SelectedOptions>({})
   const [selectedTab, setSelectedTab] = useState<Record<string, any>>({ label: "description", id: 1, Component: ()=><div></div> })
   const [details, setDetails] = useState<any>()
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState<boolean>(true)
   const { id } = use(params)
 
-  const tabStyleSelected = useMemo(() => "border-purple-600 text-purple-600 font-medium  border-b-2", [])
+  const tabStyleSelected = useMemo(() => "border-blue-600 text-blue-600 font-medium  border-b-2", [])
 
   useEffect(() => {
     const setDefaultTab = () => {setSelectedTab(tabs[0])}
@@ -164,35 +164,35 @@ export default function ProductPage({ params }: { params: { id: string } }) {
         <div className="container mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
             <Link href="/" className="flex items-center gap-2">
-              <div className="w-8 h-8 bg-gradient-to-br from-purple-500 to-purple-600 rounded-lg flex items-center justify-center">
+              <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg flex items-center justify-center">
                 <div className="w-4 h-4 bg-white rounded-sm"></div>
               </div>
               <span className="text-xl font-semibold text-gray-900">Store</span>
             </Link>
 
             <nav className="hidden md:flex items-center gap-8">
-              <Link href="/" className="text-gray-600 hover:text-purple-600 transition-colors">
+              <Link href="/" className="text-gray-600 hover:text-blue-600 transition-colors">
                 Home
               </Link>
-              <Link href="/shop" className="text-gray-600 hover:text-purple-600 transition-colors">
+              <Link href="/shop" className="text-gray-600 hover:text-blue-600 transition-colors">
                 Shop
               </Link>
-              <Link href="/games" className="text-gray-600 hover:text-purple-600 transition-colors">
+              <Link href="/games" className="text-gray-600 hover:text-blue-600 transition-colors">
                 Games
               </Link>
-              <Link href="/about" className="text-gray-600 hover:text-purple-600 transition-colors">
+              <Link href="/about" className="text-gray-600 hover:text-blue-600 transition-colors">
                 About
               </Link>
-              <Link href="/contact" className="text-gray-600 hover:text-purple-600 transition-colors">
+              <Link href="/contact" className="text-gray-600 hover:text-blue-600 transition-colors">
                 Contact
               </Link>
             </nav>
 
             <div className="flex items-center gap-4">
-              <Button variant="ghost" size="icon" className="text-gray-600 hover:text-purple-600">
+              <Button variant="ghost" size="icon" className="text-gray-600 hover:text-blue-600">
                 <Search className="h-5 w-5" />
               </Button>
-              <Button variant="ghost" size="icon" className="text-gray-600 hover:text-purple-600">
+              <Button variant="ghost" size="icon" className="text-gray-600 hover:text-blue-600">
                 <ShoppingCart className="h-5 w-5" />
               </Button>
             </div>
@@ -214,7 +214,7 @@ export default function ProductPage({ params }: { params: { id: string } }) {
                     <Link
                       key={index}
                       href={`/products?taxon=${part}`}
-                      className="text-gray-600 hover:text-purple-600 transition-colors"
+                      className="text-gray-600 hover:text-blue-600 transition-colors"
                     >
                       {part}
                     </Link>
@@ -226,7 +226,7 @@ export default function ProductPage({ params }: { params: { id: string } }) {
 
                   <span
                     key={index}
-                    className="cursor-pointer text-gray-600 hover:text-purple-600 transition-colors"
+                    className="cursor-pointer text-gray-600 hover:text-blue-600 transition-colors"
                   >
                     {part}
                   </span>
@@ -272,7 +272,7 @@ export default function ProductPage({ params }: { params: { id: string } }) {
                 </Button>
               </div>
               {product.discount > 0 && (
-                <Badge className="absolute top-4 left-4 bg-red-500 text-white">{product.discount}% OFF</Badge>
+                <Badge className="absolute top-4 left-4 bg-blue-500 text-white">{product.discount}% OFF</Badge>
               )}
             </div>
 
@@ -282,7 +282,7 @@ export default function ProductPage({ params }: { params: { id: string } }) {
                 <button
                   key={index}
                   onClick={() => setSelectedImage(index)}
-                  className={`flex-shrink-0 w-20 h-20 rounded-lg overflow-hidden border-2 transition-colors ${selectedImage === index ? "border-purple-600" : "border-gray-200"
+                  className={`flex-shrink-0 w-20 h-20 rounded-lg overflow-hidden border-2 transition-colors ${selectedImage === index ? "border-blue-600" : "border-gray-200"
                     }`}
                 >
                   <Image
@@ -302,8 +302,8 @@ export default function ProductPage({ params }: { params: { id: string } }) {
             {/* Product Title & Rating */}
             <div>
               <div className="flex items-center gap-2 mb-2">
-                <span className="text-sm text-purple-600 font-medium uppercase tracking-wide">{product.brand}</span>
-                <Badge variant="outline" className="text-xs bg-purple-50 text-purple-700 border-purple-200">
+                <span className="text-sm text-blue-600 font-medium uppercase tracking-wide">{product.brand}</span>
+                <Badge variant="outline" className="text-xs bg-blue-50 text-purple-700 border-purple-200">
                   Best Seller
                 </Badge>
               </div>
@@ -335,7 +335,7 @@ export default function ProductPage({ params }: { params: { id: string } }) {
                 )}
 
                 {product.discount > 0 && (
-                  <span className="bg-red-500 text-white text-sm font-semibold px-3 py-1 rounded-full">
+                  <span className="bg-blue-500 text-white text-sm font-semibold px-3 py-1 rounded-full">
                     {product.discount}% OFF
                   </span>
                 )}
@@ -348,7 +348,7 @@ export default function ProductPage({ params }: { params: { id: string } }) {
               )}
 
               <div className="text-sm text-gray-600 flex items-center gap-2">
-                <Truck className="w-4 h-4 text-purple-500" />
+                <Truck className="w-4 h-4 text-blue-500" />
                 Inclusive of all taxes • Free shipping above ₹499
               </div>
             </div>
@@ -363,7 +363,7 @@ export default function ProductPage({ params }: { params: { id: string } }) {
                     key={variant.id}
                     onClick={() => setSelectedVariant(variant)}
                     className={`p-4 border-1 rounded-sm cursor-pointer text-left transition-all duration-200 cursor-pointer ${selectedVariant.id === variant.id
-                      ? "border-purple-500 bg-purple-50 shadow-sm"
+                      ? "border-blue-500 bg-blue-50 shadow-sm"
                       : "border-gray-200 hover:border-purple-300 hover:shadow-sm"
                       }`}
                   >
@@ -388,7 +388,7 @@ export default function ProductPage({ params }: { params: { id: string } }) {
                 {product.colors.map((color) => (
                   <div key={color.id} className="text-center">
                     <button
-                      className="w-12 h-12 rounded-full border-3 border-gray-300 hover:border-purple-500 transition-colors shadow-md hover:shadow-lg"
+                      className="w-12 h-12 rounded-full border-3 border-gray-300 hover:border-blue-500 transition-colors shadow-md hover:shadow-lg"
                       style={{ backgroundColor: color.hex }}
                       title={color.name}
                     />
@@ -410,7 +410,7 @@ export default function ProductPage({ params }: { params: { id: string } }) {
                       size="icon"
                       onClick={decrementQuantity}
                       disabled={quantity <= 1}
-                      className="h-12 w-12 hover:bg-purple-50"
+                      className="h-12 w-12 hover:bg-blue-50"
                     >
                       <Minus className="h-5 w-5" />
                     </Button>
@@ -420,7 +420,7 @@ export default function ProductPage({ params }: { params: { id: string } }) {
                       size="icon"
                       onClick={incrementQuantity}
                       disabled={quantity >= product.stockCount}
-                      className="h-12 w-12 hover:bg-purple-50"
+                      className="h-12 w-12 hover:bg-blue-50"
                     >
                       <Plus className="h-5 w-5" />
                     </Button>
@@ -436,7 +436,7 @@ export default function ProductPage({ params }: { params: { id: string } }) {
               <div className="space-y-4 space-x-4 flex">
                 <Button
                   size="sm"
-                  className="w-[14rem] cursor-pointer bg-purple-600 hover:bg-purple-700 text-white py-6 text-base font-medium rounded-xl shadow-md hover:shadow-lg transition-all duration-200"
+                  className="w-[14rem] cursor-pointer bg-blue-600 hover:bg-blue-700 text-white py-6 text-base font-medium rounded-xl shadow-md hover:shadow-lg transition-all duration-200"
                 >
                   <ShoppingCart className=" h-5 w-5" />
                   Add to Cart
@@ -483,8 +483,8 @@ export default function ProductPage({ params }: { params: { id: string } }) {
 
                   {/* Warranty */}
                   <div className="flex items-start gap-4">
-                    <div className="w-11 h-11 bg-purple-100 rounded-full flex items-center justify-center shadow-sm">
-                      <Shield className="h-5 w-5 text-purple-600" />
+                    <div className="w-11 h-11 bg-blue-100 rounded-full flex items-center justify-center shadow-sm">
+                      <Shield className="h-5 w-5 text-blue-600" />
                     </div>
                     <div>
                       <p className="font-semibold text-gray-800">2-Year Premium Warranty</p>
@@ -503,9 +503,9 @@ export default function ProductPage({ params }: { params: { id: string } }) {
                 {product.features.map((feature, index) => (
                   <div
                     key={index}
-                    className="flex items-center gap-3 p-3 bg-purple-50 rounded-lg border border-purple-100"
+                    className="flex items-center gap-3 p-3 bg-blue-50 rounded-lg border border-purple-100"
                   >
-                    <div className="w-2 h-2 bg-purple-600 rounded-full"></div>
+                    <div className="w-2 h-2 bg-blue-600 rounded-full"></div>
                     <span className="text-gray-800 font-medium">{feature}</span>
                   </div>
                 ))}

@@ -44,7 +44,7 @@ export default function HomePage() {
 
     const fetchfeaturedproducts = async () => {
       try {
-        const res = await fetch(SOLIDUS_ROUTES.api.products + `?taxon_id=${1}`, {
+        const res = await fetch(SOLIDUS_ROUTES.api.products + `?taxon_id=${10}`, {
           headers: {
             Accept: "application/json",
           }
@@ -72,7 +72,7 @@ export default function HomePage() {
           <div className="flex items-center justify-between">
             {/* Logo */}
             <Link href="/" className="flex items-center gap-2">
-              <div className="w-8 h-8 bg-gradient-to-br from-purple-500 to-purple-600 rounded-lg flex items-center justify-center">
+              <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg flex items-center justify-center">
                 <div className="w-4 h-4 bg-white rounded-sm"></div>
               </div>
               <span className="text-xl font-semibold text-gray-900">Store</span>
@@ -80,26 +80,26 @@ export default function HomePage() {
 
             {/* Navigation */}
             <nav className="hidden md:flex items-center gap-8">
-              <Link href="/" className="text-gray-900 font-medium hover:text-purple-600 transition-colors">
+              <Link href="/" className="text-gray-900 font-medium hover:text-blue-600 transition-colors">
                 Home
               </Link>
-              <Link href="/shop" className="text-gray-600 hover:text-purple-600 transition-colors">
+              <Link href="/shop" className="text-gray-600 hover:text-blue-600 transition-colors">
                 Shop
               </Link>
-              <Link href="/about" className="text-gray-600 hover:text-purple-600 transition-colors">
+              <Link href="/about" className="text-gray-600 hover:text-blue-600 transition-colors">
                 About
               </Link>
-              <Link href="/contact" className="text-gray-600 hover:text-purple-600 transition-colors">
+              <Link href="/contact" className="text-gray-600 hover:text-blue-600 transition-colors">
                 Contact
               </Link>
             </nav>
 
             {/* Actions */}
             <div className="flex items-center gap-4">
-              <Button variant="ghost" size="icon" className="text-gray-600 hover:text-purple-600">
+              <Button variant="ghost" size="icon" className="text-gray-600 hover:text-blue-600">
                 <Search className="h-5 w-5" />
               </Button>
-              <Button variant="ghost" size="icon" className="text-gray-600 hover:text-purple-600">
+              <Button variant="ghost" size="icon" className="text-gray-600 hover:text-blue-600">
                 <ShoppingCart className="h-5 w-5" />
               </Button>
             </div>
@@ -110,23 +110,22 @@ export default function HomePage() {
       {/* Hero Section */}
       <section className="relative overflow-hidden bg-gradient-to-br from-gray-50 via-blue-300 to-blue-400">
         {/* Decorative elements */}
-        <div className="absolute top-20 left-10 w-32 h-32 bg-purple-200 rounded-full opacity-30 blur-xl"></div>
-        <div className="absolute bottom-20 right-20 w-24 h-24 bg-purple-300 rounded-full opacity-20 blur-lg"></div>
-
+        <div className="absolute top-20 left-10 w-32 h-32 bg-blue-200 rounded-full opacity-30 blur-xl"></div>
+        <div className="absolute bottom-20 right-20 w-24 h-24 bg-blue-300 rounded-full opacity-20 blur-lg"></div>
         <div className="container mx-auto px-4 py-16 md:py-24">
           <div className="grid lg:grid-cols-2 gap-12 items-center">
             {/* Left Content */}
             <div className="text-center lg:text-left">
               <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold mb-6">
-                <span className="bg-gradient-to-r from-purple-600 via-purple-500 to-purple-400 bg-clip-text text-transparent">
+                <span className="bg-gradient-to-r from-blue-600 via-blue-500 to-blue-400 bg-clip-text text-transparent">
                   Discover
                 </span>
                 <br />
-                <span className="bg-gradient-to-r from-purple-600 via-purple-500 to-purple-400 bg-clip-text text-transparent">
+                <span className="bg-gradient-to-r from-blue-600 via-blue-500 to-blue-400 bg-clip-text text-transparent">
                   Premium
                 </span>
                 <br />
-                <span className="bg-gradient-to-r from-purple-600 via-purple-500 to-purple-400 bg-clip-text text-transparent">
+                <span className="bg-gradient-to-r from-blue-600 via-blue-500 to-blue-400 bg-clip-text text-transparent">
                   Collections
                 </span>
               </h1>
@@ -139,7 +138,7 @@ export default function HomePage() {
               <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
                 <Button
                   size="lg"
-                  className="bg-purple-600 hover:bg-purple-700 text-white px-8 py-6 text-lg font-semibold rounded-full"
+                  className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-6 text-lg font-semibold rounded-full"
                 >
                   Shop Now
                   <ArrowRight className="ml-2 h-5 w-5" />
@@ -147,7 +146,7 @@ export default function HomePage() {
                 <Button
                   variant="outline"
                   size="lg"
-                  className="border-2 border-gray-300 text-gray-700 hover:border-purple-600 hover:text-purple-600 px-8 py-6 text-lg font-semibold rounded-full bg-white"
+                  className="border-2 border-gray-300 text-gray-700 hover:border-blue-600 hover:text-blue-600 px-8 py-6 text-lg font-semibold rounded-full bg-white"
                 >
                   View Collections
                 </Button>
@@ -233,7 +232,7 @@ export default function HomePage() {
             <Button
               variant="outline"
               size="lg"
-              className="border-2 border-purple-600 text-purple-600 hover:bg-purple-600 hover:text-white px-8 text-lg font-semibold rounded-full bg-transparent"
+              className="border-2 border-blue-600 text-blue-600 hover:bg-blue-600 hover:text-white px-8 text-lg font-semibold rounded-full bg-transparent"
             >
               View All Products
               <ArrowRight className="ml-2 h-5 w-5" />
@@ -305,25 +304,23 @@ export default function HomePage() {
       </section>
 
       {/* Newsletter Section */}
-      <section className="py-16 md:py-24 bg-gradient-to-r from-purple-600 to-purple-700">
+      <section className="py-16 md:py-24 bg-gradient-to-r from-blue-600 to-purple-700">
         <div className="container mx-auto px-4 text-center">
           <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">Stay in the Loop</h2>
           <p className="text-xl text-purple-100 mb-8 max-w-2xl mx-auto">
             Subscribe to our newsletter and be the first to know about new arrivals, exclusive offers, and special
             events.
           </p>
-
           <div className="max-w-md mx-auto flex flex-col sm:flex-row gap-4 mb-4">
             <Input
               type="email"
               placeholder="Enter your email"
               className="flex-1 px-6 py-4 rounded-full text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-white border-0"
             />
-            <Button className="bg-white text-purple-600 hover:bg-gray-100 px-8 py-4 rounded-full font-semibold">
+            <Button className="bg-white text-blue-600 hover:bg-gray-100 px-8 py-4 rounded-full font-semibold">
               Subscribe
             </Button>
           </div>
-
           <p className="text-sm text-purple-200">We respect your privacy. Unsubscribe at any time.</p>
         </div>
       </section>
@@ -335,7 +332,7 @@ export default function HomePage() {
             {/* Company Info */}
             <div>
               <div className="flex items-center gap-2 mb-4">
-                <div className="w-8 h-8 bg-gradient-to-br from-purple-500 to-purple-600 rounded-lg flex items-center justify-center">
+                <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg flex items-center justify-center">
                   <div className="w-4 h-4 bg-white rounded-sm"></div>
                 </div>
                 <span className="text-xl font-semibold">Store</span>
