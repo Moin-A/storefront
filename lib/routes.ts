@@ -47,7 +47,7 @@
       
       // Line Items (Cart Items)
       line_items: '/api/orders/current/line_items',
-      add_to_cart: '/api/orders/current/line_items',
+      add_to_cart: '/api/cart/add',
       update_cart_item: '/api/orders/current/line_items/[id]',
       remove_cart_item: '/api/orders/current/line_items/[id]',
       

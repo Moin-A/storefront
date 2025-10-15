@@ -11,6 +11,8 @@ import { SOLIDUS_ROUTES } from "../../../lib/routes"
 import getSymbolFromCurrency from 'currency-symbol-map';
 import { cn } from "../../../lib/utils"
 import Option_filter from '../../../components/option_filter';
+import { useCartStore } from "../../store/useCartStore";
+import { useUIStore } from "../../store/useUIStore";
 
 export type SelectedOptions = {
   [name: string]: {
@@ -28,7 +30,11 @@ export default function ProductPage({ params }: { params: { id: string } }) {
   const [details, setDetails] = useState<any>()
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState<boolean>(true)
+  const [addingToCart, setAddingToCart] = useState<boolean>(false)
   const { id } = use(params)
+  
+  const setCart = useCartStore((state) => state.setCart)
+  const addNotification = useUIStore((state) => state.addNotification)
 
   const tabStyleSelected = useMemo(() => "border-blue-600 text-blue-600 font-medium  border-b-2", [])
 
@@ -80,6 +86,43 @@ export default function ProductPage({ params }: { params: { id: string } }) {
     },
     [selectedOptions, details]
   )
+
+  const handleAddToCart = async () => {
+    if (!selectedVariant?.id) {
+      addNotification('error', 'Please select a variant')
+      return
+    }
+
+    setAddingToCart(true)
+    
+    try {
+      const response = await fetch(SOLIDUS_ROUTES.api.add_to_cart, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          variant_id: selectedVariant.id,
+          quantity: quantity,
+        }),
+        credentials: 'include' as RequestCredentials,
+      })
+
+      const data = await response.json()
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to add to cart')
+      }
+
+      setCart(data)
+      addNotification('success', `${details?.name} added to cart!`)
+    } catch (err: any) {
+      console.error(err)
+      addNotification('error',JSON.stringify( err.message ) || 'Failed to add to cart')
+    } finally {
+      setAddingToCart(false)
+    }
+  }
 
   const tabs = [
     { id: 1, label: 'description', Component: ({details}: {details?: {description?: string}}) => <div>{details?.description}</div> },
@@ -436,10 +479,12 @@ export default function ProductPage({ params }: { params: { id: string } }) {
               <div className="space-y-4 space-x-4 flex">
                 <Button
                   size="sm"
-                  className="w-[14rem] cursor-pointer bg-blue-600 hover:bg-blue-700 text-white py-6 text-base font-medium rounded-xl shadow-md hover:shadow-lg transition-all duration-200"
+                  onClick={handleAddToCart}
+                  disabled={addingToCart}
+                  className="w-[14rem] cursor-pointer bg-blue-600 hover:bg-blue-700 text-white py-6 text-base font-medium rounded-xl shadow-md hover:shadow-lg transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   <ShoppingCart className=" h-5 w-5" />
-                  Add to Cart
+                  {addingToCart ? 'Adding...' : 'Add to Cart'}
                 </Button>
 
                 <Button

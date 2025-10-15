@@ -1,4 +1,4 @@
-import { type NextRequest, NextResponse } from "next/server";
+import { type NextRequest } from "next/server";
 import { SolidusAPI } from "../../../../service/api";
 import { SOLIDUS_ROUTES } from "../../../../lib/routes";
 
@@ -9,31 +9,22 @@ export async function GET(
 ) {
   const { id: storeId } = await params;
 
+  const cookies = req.headers.get('cookie') || '';
 
   const requestConfig = {
     method: 'GET',
+    headers: {
+      'Content-Type': 'application/json',
+      'Accept': 'application/json',
+      'Cookie': cookies
+    },
     credentials: 'include' as RequestCredentials
   };
 
-  const api = new SolidusAPI()
-
-  try {
-    const api = new SolidusAPI();
-    const response = await api.request(`${SOLIDUS_ROUTES.api.stores}/${storeId}`, requestConfig)
-
-    if (!response.ok) {
-      return NextResponse.json(
-        { error: "Store not found or upstream error" },
-        { status: response.status }
-      );
-    }
+  const api = new SolidusAPI();
   
-    const store = await response.json();
-    return NextResponse.json(store);
-  } catch (error) {
-    return NextResponse.json(
-      { error: "Failed to fetch store data" },
-      { status: 500 }
-    );
-  }
+  const response = await api.request(`${SOLIDUS_ROUTES.api.stores}/${storeId}`, requestConfig);
+
+  return response;
+  
 }

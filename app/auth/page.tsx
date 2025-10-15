@@ -14,6 +14,7 @@ import Link from "next/link"
 import Image from "next/image"
 import {SOLIDUS_ROUTES} from "../../lib/routes"
 import { useUserStore } from "../store/userStore";
+import { useUIStore } from "../store/useUIStore";
 
 
 export default function AuthPage() {
@@ -23,6 +24,7 @@ export default function AuthPage() {
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState('');
   const setUser = useUserStore((state)=> state.setUser)
+  const addNotification = useUIStore((state) => state.addNotification)
   const router = useRouter();
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
@@ -32,7 +34,7 @@ export default function AuthPage() {
     const form = event.currentTarget;
     const formData = new FormData(form)
 
-
+    try {
       const response = await fetch(isLogin?SOLIDUS_ROUTES.api.login:SOLIDUS_ROUTES.api.register, {
         method: 'POST',
         body: JSON.stringify(Object.fromEntries(formData)),
@@ -42,12 +44,17 @@ export default function AuthPage() {
       setIsLoading(false);
       if (!response.ok) {
         setError(data.error || 'Login failed');
-        throw new Error(data.error || 'Login failed');
-      } else {
-   
-        setUser(data.user)
-        router.push('/')
+        addNotification('error', data.error || 'Login failed', true);
+        return;
       }
+   
+      setUser(data.user)
+      addNotification('success', isLogin ? 'Login successful!' : 'Registration successful!', true);
+      router.push('/')
+    } catch (err) {
+      setIsLoading(false);
+      addNotification('error', 'Something went wrong. Please try again.', true);
+    }
   };
 
   const toggleAuthMode = () => {
