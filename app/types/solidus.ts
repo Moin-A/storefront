@@ -30,11 +30,21 @@ export type LineItem = {
     id?: number;
     sku?: string;
     name?: string;
+    images?: Array<{
+      id?: number;
+      alt?: string;
+      attachment_url?: string;
+    }>;
     product?: {
       id?: number;
       name?: string;
       slug?: string;
       description?: string;
+      images?: Array<{
+        id?: number;
+        alt?: string;
+        attachment_url?: string;
+      }>;
     };
   };
 };

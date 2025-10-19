@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { persist } from 'zustand/middleware';
+import { persist, devtools } from 'zustand/middleware';
 import { User } from '../types/solidus';
 type UserState = {
   user: User | null;
@@ -12,25 +12,31 @@ type UserState = {
 };
 
 export const useUserStore = create<UserState>()(
-  persist(
-    (set) => ({
-      user: null,
-      isAuthenticated: false,
-      hasHydrated: false,
-      setUser: (user) => set({ user, isAuthenticated: !!user }),
-      setAuthenticated: (isAuthenticated) => set({ isAuthenticated }),
-      clearUser: () => set({ user: null, isAuthenticated: false }),
-      setHasHydrated: (value) => set({ hasHydrated: value }),
-    }),
-    {
-      name: 'user-storage',
-      partialize: (state) => ({ 
-        user: state.user, 
-        isAuthenticated: state.isAuthenticated 
+  devtools(
+    persist(
+      (set) => ({
+        user: null,
+        isAuthenticated: false,
+        hasHydrated: false,
+        setUser: (user) => set({ user, isAuthenticated: !!user }),
+        setAuthenticated: (isAuthenticated) => set({ isAuthenticated }),
+        clearUser: () => set({ user: null, isAuthenticated: false }),
+        setHasHydrated: (value) => set({ hasHydrated: value }),
       }),
-      onRehydrateStorage: () => (state) => {
-        state?.setHasHydrated(true);
-      },
+      {
+        name: 'user-storage',
+        partialize: (state) => ({ 
+          user: state.user, 
+          isAuthenticated: state.isAuthenticated 
+        }),
+        onRehydrateStorage: () => (state) => {
+          state?.setHasHydrated(true);
+        },
+      }
+    ),
+    {
+      name: 'UserStore',
+      enabled: true,
     }
   )
 );

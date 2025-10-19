@@ -176,50 +176,8 @@ export default function GamesPage({ params }: { params: { id: string } }) {
 
   return (
     <div className="min-h-screen bg-white">
-      {/* Header - Same as homepage */}
-      <header className="bg-white border-b border-gray-100 sticky top-0 z-50">
-        <div className="container mx-auto px-4 py-4">
-          <div className="flex items-center justify-between">
-            {/* Logo */}
-            <Link href="/" className="flex items-center gap-2">
-              <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg flex items-center justify-center">
-                <div className="w-4 h-4 bg-white rounded-sm"></div>
-              </div>
-              <span className="text-xl font-semibold text-gray-900">Store</span>
-            </Link>
-
-            {/* Main Navigation */}
-            <nav className="hidden md:flex items-center gap-8">
-              <Link href="/" className="text-gray-600 hover:text-blue-600 transition-colors">
-                Home
-              </Link>
-              <Link href="/shop" className="text-gray-600 hover:text-blue-600 transition-colors">
-                Shop
-              </Link>
-              <Link href="/games" className="text-gray-900 font-medium hover:text-blue-600 transition-colors">
-                Games
-              </Link>
-              <Link href="/about" className="text-gray-600 hover:text-blue-600 transition-colors">
-                About
-              </Link>
-              <Link href="/contact" className="text-gray-600 hover:text-blue-600 transition-colors">
-                Contact
-              </Link>
-            </nav>
-
-            {/* Actions */}
-            <div className="flex items-center gap-4">
-              <Button variant="ghost" size="icon" className="text-gray-600 hover:text-blue-600">
-                <Search className="h-5 w-5" />
-              </Button>
-              <Button variant="ghost" size="icon" className="text-gray-600 hover:text-blue-600">
-                <ShoppingCart className="h-5 w-5" />
-              </Button>
-            </div>
-          </div>
-        </div>
-
-        {/* Gaming Categories Navigation */}
+      {/* Gaming Categories Navigation */}
+      <div className="bg-white border-b border-gray-100 sticky top-[4.2rem] z-40">
         <div className="bg-gray-50 border-t border-gray-100">
           <div className="container mx-auto px-4">
             <div className="flex items-center gap-6 py-3 overflow-x-auto mx-auto justify-center">
@@ -269,7 +227,7 @@ export default function GamesPage({ params }: { params: { id: string } }) {
             </div>
           </div>
         </div>
-      </header>
+      </div>
 
       {/* Hero Section */}
       <section className="bg-gradient-to-br from-purple-50 to-purple-100 py-12">

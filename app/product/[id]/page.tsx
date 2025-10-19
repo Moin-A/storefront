@@ -202,47 +202,6 @@ export default function ProductPage({ params }: { params: { id: string } }) {
 
   return (
     <div className="min-h-screen bg-white">
-      {/* Header - Same as other pages */}
-      <header className="bg-white border-b border-gray-100 sticky top-0 z-50">
-        <div className="container mx-auto px-4 py-4">
-          <div className="flex items-center justify-between">
-            <Link href="/" className="flex items-center gap-2">
-              <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg flex items-center justify-center">
-                <div className="w-4 h-4 bg-white rounded-sm"></div>
-              </div>
-              <span className="text-xl font-semibold text-gray-900">Store</span>
-            </Link>
-
-            <nav className="hidden md:flex items-center gap-8">
-              <Link href="/" className="text-gray-600 hover:text-blue-600 transition-colors">
-                Home
-              </Link>
-              <Link href="/shop" className="text-gray-600 hover:text-blue-600 transition-colors">
-                Shop
-              </Link>
-              <Link href="/games" className="text-gray-600 hover:text-blue-600 transition-colors">
-                Games
-              </Link>
-              <Link href="/about" className="text-gray-600 hover:text-blue-600 transition-colors">
-                About
-              </Link>
-              <Link href="/contact" className="text-gray-600 hover:text-blue-600 transition-colors">
-                Contact
-              </Link>
-            </nav>
-
-            <div className="flex items-center gap-4">
-              <Button variant="ghost" size="icon" className="text-gray-600 hover:text-blue-600">
-                <Search className="h-5 w-5" />
-              </Button>
-              <Button variant="ghost" size="icon" className="text-gray-600 hover:text-blue-600">
-                <ShoppingCart className="h-5 w-5" />
-              </Button>
-            </div>
-          </div>
-        </div>
-      </header>
-
       {/* Breadcrumb */}
       <div className="bg-gray-50 border-b sticky top-[4.2rem] z-40 overflow-hidden">
         <div className="container mx-auto px-4 py-3">

@@ -15,6 +15,7 @@
       checkout_complete: '/cart/checkout/complete',
       login: '/account/login',
       register: '/account/register',
+      password_change: '/password/change',
       account: '/account',
       orders: '/account/orders',
       order_detail: '/account/orders/[id]',
@@ -26,6 +27,8 @@
       // Authentication
       login: '/api/login',
       register: '/api/register',
+      password_recover: '/api/auth/password/recover',
+      password_change: '/api/auth/password/change',
       logout: '/api/auth/logout',
       
       // Products

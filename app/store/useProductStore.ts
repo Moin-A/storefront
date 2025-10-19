@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { persist } from 'zustand/middleware';
+import { persist, devtools } from 'zustand/middleware';
 
 type Product = {
   id?: number;
@@ -44,41 +44,47 @@ type ProductState = {
 };
 
 export const useProductStore = create<ProductState>()(
-  persist(
-    (set, get) => ({
-      products: [],
-      currentProduct: null,
-      wishlist: [],
-      hasHydrated: false,
-      setProducts: (products) => set({ products }),
-      addProduct: (product) => {
-        const { products } = get();
-        set({ products: [...products, product] });
-      },
-      setCurrentProduct: (currentProduct) => set({ currentProduct }),
-      addToWishlist: (product) => {
-        const { wishlist } = get();
-        const exists = wishlist.find(item => item.id === product.id);
-        if (!exists) {
-          set({ wishlist: [...wishlist, product] });
-        }
-      },
-      removeFromWishlist: (productId) => {
-        const { wishlist } = get();
-        set({ wishlist: wishlist.filter(item => item.id !== productId) });
-      },
-      clearProducts: () => set({ products: [], currentProduct: null }),
-      setHasHydrated: (value) => set({ hasHydrated: value }),
-    }),
-    {
-      name: 'product-storage',
-      partialize: (state) => ({ 
-        wishlist: state.wishlist,
-        currentProduct: state.currentProduct 
+  devtools(
+    persist(
+      (set, get) => ({
+        products: [],
+        currentProduct: null,
+        wishlist: [],
+        hasHydrated: false,
+        setProducts: (products) => set({ products }),
+        addProduct: (product) => {
+          const { products } = get();
+          set({ products: [...products, product] });
+        },
+        setCurrentProduct: (currentProduct) => set({ currentProduct }),
+        addToWishlist: (product) => {
+          const { wishlist } = get();
+          const exists = wishlist.find(item => item.id === product.id);
+          if (!exists) {
+            set({ wishlist: [...wishlist, product] });
+          }
+        },
+        removeFromWishlist: (productId) => {
+          const { wishlist } = get();
+          set({ wishlist: wishlist.filter(item => item.id !== productId) });
+        },
+        clearProducts: () => set({ products: [], currentProduct: null }),
+        setHasHydrated: (value) => set({ hasHydrated: value }),
       }),
-      onRehydrateStorage: () => (state) => {
-        state?.setHasHydrated(true);
-      },
+      {
+        name: 'product-storage',
+        partialize: (state) => ({ 
+          wishlist: state.wishlist,
+          currentProduct: state.currentProduct 
+        }),
+        onRehydrateStorage: () => (state) => {
+          state?.setHasHydrated(true);
+        },
+      }
+    ),
+    {
+      name: 'ProductStore',
+      enabled: true,
     }
   )
 );
