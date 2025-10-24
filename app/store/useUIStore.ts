@@ -10,6 +10,7 @@ type Notification = {
   id: string;
   type: NotificationType;
   message: string;
+  title?: string; // optional
   autoDismiss?: boolean; // optional
 };
 
@@ -28,7 +29,7 @@ type UIState = {
   toggleSearch: () => void;
   setCartOpen: (open: boolean) => void;
   setHasHydrated: (value: boolean) => void;
-  addNotification: (type: NotificationType, message: string, autoDismiss?: boolean) => void;
+  addNotification: (type: NotificationType, message: string, autoDismiss?: boolean, title?: string) => void;
   removeNotification: (id: string) => void;
 };
 
@@ -50,10 +51,10 @@ export const useUIStore = create<UIState>()(
         toggleSearch: () => set({ searchOpen: !get().searchOpen }),
         setCartOpen: (cartOpen) => set({ cartOpen }),
         setHasHydrated: (value) => set({ hasHydrated: value }),
-        addNotification: (type, message, autoDismiss = false) => {
+        addNotification: (type, message, autoDismiss = false, title) => {
           const id = Math.random().toString(36).substr(2, 9);
           set({ 
-            notifications: [...get().notifications, { id, type, message, autoDismiss }] 
+            notifications: [...get().notifications, { id, type, message, title, autoDismiss }] 
           });
         },
         removeNotification: (id) => {

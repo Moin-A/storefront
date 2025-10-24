@@ -12,7 +12,7 @@ export function Toast() {
     notifications.forEach((notification) => {
         const timer = setTimeout(() => {
           removeNotification(notification.id)
-        }, 5000)
+        }, 6000)
         return () => clearTimeout(timer)
       
     })
@@ -48,19 +48,37 @@ export function Toast() {
     }
   }
 
+  const getTitle = (type: string) => {
+    switch (type) {
+      case 'success':
+        return 'Success'
+      case 'error':
+        return 'Error'
+      case 'warning':
+        return 'Warning'
+      case 'info':
+        return 'Info'
+      default:
+        return 'Notification'
+    }
+  }
+
   if (notifications.length === 0) return null
 
   return (
-    <div className="fixed top-24 right-4 z-50 flex flex-col gap-2">
+    <div className="fixed bottom-12 right-4 z-50 flex flex-col gap-6">
       {notifications.map((notification) => (
         <div
           key={notification.id}
-          className={`flex items-center gap-3 px-4 py-3 rounded-lg border shadow-lg min-w-[300px] max-w-md animate-in slide-in-from-top-5 ${getStyles(
+          className={`flex items-center gap-3 px-8 py-6 rounded-lg border shadow-lg min-w-[300px] max-w-md animate-in slide-in-from-bottom-5 ${getStyles(
             notification.type
           )}`}
         >
           {getIcon(notification.type)}
-          <p className="flex-1 text-sm font-medium">{notification.message}</p>
+          <div className="flex-1">
+            <p className="text-sm font-semibold">{notification.title || getTitle(notification.type)}</p>
+            <p className="text-xs text-gray-600">{notification.message}</p>
+          </div>
           <button
             onClick={() => removeNotification(notification.id)}
             className="hover:opacity-70 transition-opacity"

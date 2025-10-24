@@ -19,6 +19,10 @@ export type Address = {
   phone?: string;
   state_name?: string;
   country_name?: string;
+  user_address?: {
+    default_billing?: boolean;
+    default_shipping?: boolean;
+  };
 };
 
 export type LineItem = {
@@ -34,6 +38,7 @@ export type LineItem = {
       id?: number;
       alt?: string;
       attachment_url?: string;
+      url?: string;
     }>;
     product?: {
       id?: number;
@@ -44,6 +49,7 @@ export type LineItem = {
         id?: number;
         alt?: string;
         attachment_url?: string;
+        url?: string;
       }>;
     };
   };
@@ -73,4 +79,25 @@ export type Order = {
   email?: string;
   bill_address?: Address;
   ship_address?: Address;
+};
+
+export type TaxonDetail = {
+  id: number;
+  parent_id: number | null;
+  name: string;
+  permalink: string;
+  taxonomy_id: number;
+  lft?: number;
+  rgt?: number;
+  icon_file_name?: string | null;
+  icon_content_type?: string | null;
+  icon_file_size?: number | null;
+  icon_updated_at?: string | null;
+  description?: string | null;
+  created_at?: string;
+  updated_at?: string;
+  meta_title?: string | null;
+  meta_description?: string | null;
+  meta_keywords?: string | null;
+  depth?: number;
 };

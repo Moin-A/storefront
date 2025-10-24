@@ -1,13 +1,15 @@
 'use client';
 
 import { Button } from "./ui/button";
-import { Search, ShoppingCart } from "lucide-react";
+import { Search, ShoppingCart, User } from "lucide-react";
 import Link from "next/link";
 import { useCartStore } from "../app/store/useCartStore";
+import { useUserStore } from "../app/store/userStore";
 
 export default function Header() {
   const cart = useCartStore((state) => state.cart);
   const itemCount = cart?.item_count || 0;
+  const { isAuthenticated, user } = useUserStore();
 
   return (
     <header className="bg-white border-b border-gray-100 sticky top-0 z-50">
@@ -52,6 +54,19 @@ export default function Header() {
                 )}
               </Button>
             </Link>
+            {isAuthenticated ? (
+              <Link href="/profile">
+                <Button variant="ghost" size="icon" className="text-gray-600 hover:text-blue-600">
+                  <User className="h-5 w-5" />
+                </Button>
+              </Link>
+            ) : (
+              <Link href="/auth">
+                <Button variant="outline" size="sm">
+                  Sign In
+                </Button>
+              </Link>
+            )}
           </div>
         </div>
       </div>

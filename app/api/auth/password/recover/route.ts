@@ -8,8 +8,6 @@ export async function POST(request: NextRequest) {
   const email = searchParams.get('email') || '';
   const cookies = request.headers.get('cookie') || '';
 
-  const query = email ? `?email=${encodeURIComponent(email)}` : '';
-
   // Call the upstream path. If your upstream expects a different path or POST, adjust here.
   const response = await api.request(`api/auth/password/recover`, {
     method: 'POST',

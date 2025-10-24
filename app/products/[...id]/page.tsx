@@ -12,15 +12,20 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from ".
 import { Search, ShoppingCart, Star, Heart, Filter, ChevronDown } from "lucide-react"
 import Image from "next/image"
 import Link from "next/link"
-import { SOLIDUS_ROUTES } from '../../../lib/routes';
+import { SOLIDUS_ROUTES } from '../../../lib/routes'
+import { motion, AnimatePresence } from "framer-motion"
+import type { TaxonDetail } from "../../types/solidus"
 
 
-export default function GamesPage({ params }: { params: { id: string } }) {
+export default function GamesPage({ params }: { params: { id: string | string[] } }) {
   const [priceRange, setPriceRange] = useState([299, 19999])
   const [inStock, setInStock] = useState(false)
-  const [items, setItems] = useState<any>(null)
+  const [items, setItems] = useState<any>([])
   const [error, setError] = useState<any>("")
+  const [page_no, setPage_no] = useState<any>(1)
   const [condition, setCondition] = useState("")
+  const [taxonDetail, setTaxonsDetail] = useState<TaxonDetail | null>(null)
+  const [likedItems, setLikedItems] = useState<Set<number>>(new Set())
   const { id } = use(params)
 
   const topRatedProducts = [
@@ -155,7 +160,7 @@ export default function GamesPage({ params }: { params: { id: string } }) {
   useEffect(()=>{
     const fetchProducts = async () => {
       try {
-        const res = await fetch(`${SOLIDUS_ROUTES.api.products}?perma_link=${id.join("/")}`, {
+        const res = await fetch(`${SOLIDUS_ROUTES.api.products}?page=${page_no}&&perma_link=${Array.isArray(id) ? id.join("/") : id}`, {
           headers: {
             Accept: "application/json",
           }
@@ -165,22 +170,43 @@ export default function GamesPage({ params }: { params: { id: string } }) {
           throw new Error(`Failed to fetch: ${res.status}`)
         }
         const data = await res.json()
-        setItems(data)
+         setItems(prevData => ([...data, ...prevData]));
       } catch (err: any) {
         console.error(err)
         setError(err.message)
       }
     }
+    const fetchTaxonsDetail = async () => {
+      try {
+        const permalink = Array.isArray(id) ? id.join('/') : id
+        const res = await fetch(SOLIDUS_ROUTES.api.category_taxons(permalink), {
+          method: 'GET',
+          headers: {
+            Accept: "application/json",
+          }
+        })
+        if (!res.ok) {
+          throw new Error(`Failed to fetch: ${res.status}`)
+        }
+        const data = await res.json()
+        setTaxonsDetail(data)
+      } catch(err: any) {
+        setError(err.message)
+      }
+    }
+    
+    fetchTaxonsDetail()
     fetchProducts()
-  },[])
+
+  },[page_no])
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-gray-50">
       {/* Gaming Categories Navigation */}
-      <div className="bg-white border-b border-gray-100 sticky top-[4.2rem] z-40">
-        <div className="bg-gray-50 border-t border-gray-100">
+      <div className="bg-white border-b border-gray-200 sticky top-[4.2rem] z-40 shadow-sm">
+        <div className="bg-gray-50 border-t border-gray-200">
           <div className="container mx-auto px-4">
-            <div className="flex items-center gap-6 py-3 overflow-x-auto mx-auto justify-center">
+            <div className="flex items-center gap-8 py-4 overflow-x-auto mx-auto justify-center">
               <div className="flex items-center gap-1 hover:text-blue-600 cursor-pointer whitespace-nowrap">
                 <span className="font-medium text-sm">PLAYSTATION</span>
                 <ChevronDown className="h-4 w-4" />
@@ -230,78 +256,78 @@ export default function GamesPage({ params }: { params: { id: string } }) {
       </div>
 
       {/* Hero Section */}
-      <section className="bg-gradient-to-br from-purple-50 to-purple-100 py-12">
+      <section className="bg-white py-16">
         <div className="container mx-auto px-4">
-          <div className="text-center">
-            <h1 className="text-4xl md:text-5xl font-bold mb-4">
-              <span className="bg-gradient-to-r from-blue-600 via-blue-500 to-blue-400 bg-clip-text text-transparent">
-                Gaming Collection
-              </span>
+          <div className="text-center max-w-4xl mx-auto">
+            <h1 className="text-5xl md:text-6xl font-light text-gray-900 mb-6">
+              {taxonDetail?.name || 'Explore Our Exclusive PS4 Games Collection'}
             </h1>
-            <p className="text-lg text-gray-600 mb-6 max-w-2xl mx-auto">
-              Discover premium gaming experiences with our curated selection of PS4 games and accessories
+            <p className="text-xl text-gray-600 mb-8 max-w-4xl mx-auto">
+              {taxonDetail?.description || taxonDetail?.description || 'Explore the collection of premium products'}
             </p>
-            <div className="flex items-center justify-center gap-4 text-sm text-gray-600">
-              <span>Showing 1 - 12 of 1135 results</span>
-              <Badge className="bg-blue-100 text-purple-700">Free EMI Available</Badge>
+            <div className="flex items-center justify-center gap-6 text-sm text-gray-500">
+              <span>Showing 1 - 12 of 1,135 results</span>
+              <Badge className="bg-gray-100 text-gray-700 border border-gray-200">Free EMI Available</Badge>
             </div>
           </div>
         </div>
       </section>
 
-      <div className="container mx-auto px-4 py-8">
-        <div className="grid lg:grid-cols-4 gap-8">
+      <div className="container mx-auto px-4 py-12">
+        <div className="grid lg:grid-cols-4 gap-12">
           {/* Sidebar */}
           <div className="lg:col-span-1">
             {/* Top Rated Products */}
-            <Card className="mb-6 shadow-md border-0">
-              <CardContent className="p-6">
-                <h3 className="font-bold text-lg mb-4 text-gray-900">Top Rated Products</h3>
-                <div className="space-y-4">
+            <div className="bg-white rounded-2xl shadow-sm border border-gray-100 mb-8 overflow-hidden">
+              <div className="p-6 border-b border-gray-100">
+                <h3 className="text-xl font-medium text-gray-900">Top Rated Products</h3>
+              </div>
+              <div className="p-6">
+                <div className="space-y-6">
                   {topRatedProducts.splice(0,2).map((product) => (
                     <div
                       key={product.id}
-                      className="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-50 transition-colors"
+                      className="flex items-center gap-4 p-4 bg-gray-50 rounded-xl hover:bg-gray-100 transition-colors"
                     >
                       <Image
                         src={product.image || "/placeholder.svg"}
                         alt={product.name}
-                        width={50}
-                        height={50}
-                        className="rounded-lg"
+                        width={48}
+                        height={48}
+                        className="rounded-lg bg-white shadow-sm"
                       />
-                      <div className="flex-1">
-                        <h4 className="font-medium text-sm text-gray-900">{product.name}</h4>
-                        <p className="text-xs text-gray-600 mb-1">{product.platform}</p>
-                        <div className="flex items-center gap-1 mb-1">
+                      <div className="flex-1 min-w-0">
+                        <h4 className="font-medium text-sm text-gray-900 truncate">{product.name}</h4>
+                        <p className="text-xs text-gray-500 mb-2">{product.platform}</p>
+                        <div className="flex items-center gap-1 mb-2">
                           <Star className="h-3 w-3 fill-yellow-400 text-yellow-400" />
-                          <span className="text-xs text-gray-600">{product.rating}</span>
+                          <span className="text-xs text-gray-500">{product.rating}</span>
                         </div>
                         <div className="flex items-center gap-2">
                           {product.originalPrice && (
-                            <span className="text-xs text-gray-500 line-through">{product.originalPrice}</span>
+                            <span className="text-xs text-gray-400 line-through">{product.originalPrice}</span>
                           )}
-                          <span className="text-sm font-bold text-blue-600">{product.salePrice}</span>
+                          <span className="text-sm font-semibold text-gray-900">{product.salePrice}</span>
                         </div>
                       </div>
                     </div>
                   ))}
                 </div>
-              </CardContent>
-            </Card>
+              </div>
+            </div>
 
             {/* Filters */}
-            <Card className="shadow-md border-0 sticky top-32">
-              <CardContent className="p-6">
-                <div className="flex items-center gap-2 mb-4">
-                  <Filter className="h-5 w-5 text-blue-600" />
-                  <h3 className="font-bold text-lg text-gray-900">Filters</h3>
+            <div className="bg-white rounded-2xl shadow-sm border border-gray-100 sticky top-32 overflow-hidden">
+              <div className="p-6">
+                <div className="flex items-center gap-3 mb-6">
+                  <Filter className="h-5 w-5 text-gray-600" />
+                  <h3 className="text-xl font-medium text-gray-900">Filters</h3>
                 </div>
 
                 {/* Price Filter */}
-                <div className="mb-6">
-                  <h4 className="font-medium mb-3 text-gray-900">Price Range</h4>
-                  <div className="space-y-4">
+                <div className="mb-8">
+                  <h4 className="font-medium mb-4 text-gray-900">Price Range</h4>
+                  <div className="space-y-6">
                     <Slider
                       value={priceRange}
                       onValueChange={setPriceRange}
@@ -311,18 +337,18 @@ export default function GamesPage({ params }: { params: { id: string } }) {
                       className="w-full"
                     />
                     <div className="flex items-center justify-between text-sm">
-                      <span className="bg-blue-100 text-purple-700 px-3 py-1 rounded-full">Rs. {priceRange[0]}</span>
-                      <span className="bg-blue-100 text-purple-700 px-3 py-1 rounded-full">Rs. {priceRange[1]}</span>
+                      <span className="bg-gray-100 text-gray-700 px-4 py-2 rounded-lg border border-gray-200">Rs. {priceRange[0]}</span>
+                      <span className="bg-gray-100 text-gray-700 px-4 py-2 rounded-lg border border-gray-200">Rs. {priceRange[1]}</span>
                     </div>
                   </div>
                 </div>
 
                 {/* Availability Filter */}
-                <div className="mb-6">
-                  <h4 className="font-medium mb-3 text-gray-900">Availability</h4>
-                  <div className="flex items-center space-x-2">
-                    <Checkbox id="inStock" checked={inStock} onCheckedChange={setInStock} />
-                    <Label htmlFor="inStock" className="text-gray-700">
+                <div className="mb-8">
+                  <h4 className="font-medium mb-4 text-gray-900">Availability</h4>
+                  <div className="flex items-center space-x-3">
+                    <Checkbox id="inStock" checked={inStock} onCheckedChange={(checked) => setInStock(checked === true)} />
+                    <Label htmlFor="inStock" className="text-gray-600">
                       In stock only
                     </Label>
                   </div>
@@ -330,32 +356,32 @@ export default function GamesPage({ params }: { params: { id: string } }) {
 
                 {/* Condition Filter */}
                 <div>
-                  <h4 className="font-medium mb-3 text-gray-900">Condition</h4>
-                  <div className="space-y-2">
-                    <div className="flex items-center space-x-2">
+                  <h4 className="font-medium mb-4 text-gray-900">Condition</h4>
+                  <div className="space-y-3">
+                    <div className="flex items-center space-x-3">
                       <Checkbox
                         id="new"
                         checked={condition === "new"}
                         onCheckedChange={(checked) => setCondition(checked ? "new" : "")}
                       />
-                      <Label htmlFor="new" className="text-gray-700">
+                      <Label htmlFor="new" className="text-gray-600">
                         New
                       </Label>
                     </div>
-                    <div className="flex items-center space-x-2">
+                    <div className="flex items-center space-x-3">
                       <Checkbox
                         id="preowned"
                         checked={condition === "preowned"}
                         onCheckedChange={(checked) => setCondition(checked ? "preowned" : "")}
                       />
-                      <Label htmlFor="preowned" className="text-gray-700">
+                      <Label htmlFor="preowned" className="text-gray-600">
                         Pre-owned
                       </Label>
                     </div>
                   </div>
                 </div>
-              </CardContent>
-            </Card>
+              </div>
+            </div>
           </div>
 
           {/* Main Content */}
@@ -363,11 +389,11 @@ export default function GamesPage({ params }: { params: { id: string } }) {
             {/* Header */}
             <div className="flex items-center justify-between mb-8">
               <div>
-                <h2 className="text-2xl font-bold text-gray-900 mb-2">PS4 Games</h2>
-                <p className="text-gray-600">Premium gaming collection for PlayStation 4</p>
+                <h2 className="text-3xl font-light text-gray-900 mb-3">{taxonDetail?.meta_title || 'Explore'}</h2>
+                <p className="text-gray-600 text-sm">{taxonDetail?.meta_description || taxonDetail?.description || 'Premium gaming collection for PlayStation 4'}</p>
               </div>
               <Select defaultValue="default">
-                <SelectTrigger className="w-48 border-gray-200">
+                <SelectTrigger className="w-52 border-gray-200 rounded-xl">
                   <SelectValue placeholder="Sort by" />
                 </SelectTrigger>
                 <SelectContent>
@@ -381,101 +407,167 @@ export default function GamesPage({ params }: { params: { id: string } }) {
             </div>
 
             {/* Products Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-              {items?.map((product) => (
-                <Card key={product.id} className="group hover:shadow-xl transition-all duration-300 border-0 shadow-md">
-                  <CardContent className="p-0">
-                    <div className="relative overflow-hidden rounded-t-lg">
-                    <Link key={id} href={`/product/${product.slug}`}>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">
+              {items?.map((product: any) => (
+                <div key={product.id} className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden group hover:shadow-lg transition-all duration-300">
+                  <div className="relative overflow-hidden">
+                    <Link key={product.id} href={`/product/${product.slug}`}>
                       <Image
-                        src={product.images[0]["url"] || "/placeholder.svg"}
+                        src={product?.images[0]["url"] || "/placeholder.svg"}
                         alt={product.name}
                         width={200}
                         height={200}
-                        className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300"
+                        className="w-full h-56 object-cover group-hover:scale-105 transition-transform duration-300"
                       />
                     </Link>  
 
-                      {/* Wishlist Button */}
-                      <div className="absolute top-4 right-4">
+                    {/* Animated Wishlist Button */}
+                    <div className="absolute top-4 right-4">
+                      <motion.div
+                        whileHover={{ scale: 1.05 }}
+                        whileTap={{ scale: 0.95 }}
+                        initial={{ scale: 1 }}
+                      >
                         <Button
                           size="icon"
                           variant="secondary"
-                          className="rounded-full bg-white/80 backdrop-blur-sm hover:bg-white"
+                          onClick={(e) => {
+                            e.preventDefault()
+                            setLikedItems(prev => {
+                              const newSet = new Set(prev)
+                              if (newSet.has(product.id)) {
+                                newSet.delete(product.id)
+                              } else {
+                                newSet.add(product.id)
+                              }
+                              return newSet
+                            })
+                          }}
+                          className="rounded-full bg-white/90 backdrop-blur-sm hover:bg-white shadow-sm border border-gray-200 relative overflow-visible"
                         >
-                          <Heart className="h-4 w-4" />
+                          <AnimatePresence mode="wait">
+                            {likedItems.has(product.id) ? (
+                              <motion.div
+                                key="liked"
+                                initial={{ scale: 0 }}
+                                animate={{ scale: 1 }}
+                                exit={{ scale: 0 }}
+                                transition={{ 
+                                  type: "spring", 
+                                  stiffness: 400, 
+                                  damping: 20 
+                                }}
+                              >
+                                <Heart className="h-4 w-4 text-red-500 fill-red-500" />
+                              </motion.div>
+                            ) : (
+                              <motion.div
+                                key="unliked"
+                                initial={{ scale: 0 }}
+                                animate={{ scale: 1 }}
+                                exit={{ scale: 0 }}
+                                transition={{ 
+                                  type: "spring", 
+                                  stiffness: 400, 
+                                  damping: 20 
+                                }}
+                              >
+                                <Heart className="h-4 w-4 text-gray-600" />
+                              </motion.div>
+                            )}
+                          </AnimatePresence>
+                          
+                          {/* Gentle glow effect on like */}
+                          <AnimatePresence>
+                            {likedItems.has(product.id) && (
+                              <motion.div
+                                className="absolute inset-0 rounded-full bg-red-500/20"
+                                initial={{ scale: 0, opacity: 0 }}
+                                animate={{ 
+                                  scale: [0, 1.5, 1.2],
+                                  opacity: [0, 0.6, 0]
+                                }}
+                                exit={{ scale: 1, opacity: 0 }}
+                                transition={{
+                                  duration: 0.8,
+                                  ease: "easeOut"
+                                }}
+                              />
+                            )}
+                          </AnimatePresence>
                         </Button>
-                      </div>
-
-                      {/* Badges */}
-                      <div className="absolute top-4 left-4 flex flex-col gap-1">
-                        {product?.badges?.map((badge, index) => (
-                          <Badge
-                            key={index}
-                            className={`text-xs ${
-                              badge === "Sale"
-                                ? "bg-blue-500 text-white"
-                                : badge === "Pre-owned"
-                                  ? "bg-orange-500 text-white"
-                                  : badge === "Best Seller"
-                                    ? "bg-green-500 text-white"
-                                    : "bg-blue-500 text-white"
-                            }`}
-                          >
-                            {badge}
-                          </Badge>
-                        ))}
-                      </div>
+                      </motion.div>
                     </div>
 
-                    <div className="p-6">
-                      <h3 className="font-semibold text-lg text-gray-900 mb-2 line-clamp-2">{product.name}</h3>
-
-                      {/* Rating */}
-                      <div className="flex items-center gap-2 mb-3">
-                        <div className="flex items-center">
-                          {[1, 2, 3, 4, 5].map((star) => (
-                            <Star key={star} className="h-4 w-4 fill-yellow-400 text-yellow-400" />
-                          ))}
-                        </div>
-                        <span className="text-sm text-gray-600">
-                          {product.rating || 4.5} ({product.reviews ||4.6})
-                        </span>
-                      </div>
-
-                      {/* Price */}
-                      <div className="flex items-center gap-2 mb-4">
-                        <span className="text-2xl font-bold text-gray-900">{product.price}</span>
-                        {product.price && (
-                          <span className="text-sm text-gray-500 line-through">{product.price}</span>
-                        )}
-                      </div>
-
-                      {/* Status and Button */}
-                      <div className="flex items-center justify-between">
-                        <span
-                          className={`text-xs px-3 py-1 rounded-sm ${
-                            product.status === "In Stock" ? "bg-green-100 text-green-800" : "bg-blue-100 text-blue-800"
+                    {/* Badges */}
+                    <div className="absolute top-4 left-4 flex flex-col gap-2">
+                      {product?.badges?.map((badge: any, index: number) => (
+                        <Badge
+                          key={index}
+                          className={`text-xs ${
+                            badge === "Sale"
+                              ? "bg-red-500 text-white"
+                              : badge === "Pre-owned"
+                                ? "bg-orange-500 text-white"
+                                : badge === "Best Seller"
+                                  ? "bg-green-500 text-white"
+                                  : "bg-blue-500 text-white"
                           }`}
                         >
-                          {product.status || 'avaialable'}
-                        </span>
-                        <Button size="sm" className="bg-blue-600 hover:bg-blue-700 text-white rounded-sm px-6">
-                          Add to Cart
-                        </Button>
-                      </div>
+                          {badge}
+                        </Badge>
+                      ))}
                     </div>
-                  </CardContent>
-                </Card>
+                  </div>
+
+                  <div className="p-6">
+                    <h3 className="font-medium text-lg text-gray-900 mb-3 line-clamp-2">{product.name}</h3>
+
+                    {/* Rating */}
+                    <div className="flex items-center gap-2 mb-4">
+                      <div className="flex items-center">
+                        {[1, 2, 3, 4, 5].map((star) => (
+                          <Star key={star} className="h-4 w-4 fill-yellow-400 text-yellow-400" />
+                        ))}
+                      </div>
+                      <span className="text-sm text-gray-500">
+                        {product.rating || 4.5} ({product.reviews || 4.6})
+                      </span>
+                    </div>
+
+                    {/* Price */}
+                    <div className="flex items-center gap-3 mb-6">
+                      <span className="text-2xl font-semibold text-gray-900">{product.price}</span>
+                      {product.originalPrice && (
+                        <span className="text-sm text-gray-400 line-through">{product.originalPrice}</span>
+                      )}
+                    </div>
+
+                    {/* Status and Button */}
+                    <div className="flex items-center justify-between">
+                      <span
+                        className={`text-xs px-3 py-1 rounded-lg ${
+                          product.status === "In Stock" ? "bg-green-100 text-green-700" : "bg-gray-100 text-gray-600"
+                        }`}
+                      >
+                        {product.status || 'Available'}
+                      </span>
+                      <Button size="sm" className="bg-black hover:bg-gray-800 text-white rounded-xl px-6 py-2">
+                        Add to Cart
+                      </Button>
+                    </div>
+                  </div>
+                </div>
               ))}
             </div>
 
             {/* Load More */}
             <div className="text-center">
               <Button
+                onClick={()=>{setPage_no((prev: number)=> prev+1 )}}
                 variant="outline"
                 size="lg"
-                className="border-2 border-blue-600 text-blue-600 hover:bg-blue-600 hover:text-white px-8 py-6 text-lg font-semibold rounded-full bg-transparent"
+                className="border-2 border-gray-300 text-gray-700 hover:bg-gray-50 hover:border-gray-400 px-8 py-4 text-base font-medium rounded-xl bg-transparent"
               >
                 Load More Games
               </Button>
@@ -484,23 +576,25 @@ export default function GamesPage({ params }: { params: { id: string } }) {
         </div>
       </div>
 
-      {/* Newsletter Section - Same as homepage */}
-      <section className="py-16 bg-gradient-to-r from-blue-600 to-purple-700">
+      {/* Newsletter Section */}
+      <section className="py-16 bg-white">
         <div className="container mx-auto px-4 text-center">
-          <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">Stay Updated</h2>
-          <p className="text-xl text-purple-100 mb-8 max-w-2xl mx-auto">
-            Be the first to know about new game releases, exclusive offers, and gaming events
-          </p>
+          <div className="max-w-2xl mx-auto">
+            <h2 className="text-3xl md:text-4xl font-light text-gray-900 mb-4">Stay Updated</h2>
+            <p className="text-lg text-gray-600 mb-8">
+              Be the first to know about new game releases, exclusive offers, and gaming events
+            </p>
 
-          <div className="max-w-md mx-auto flex flex-col sm:flex-row gap-4">
-            <Input
-              type="email"
-              placeholder="Enter your email"
-              className="flex-1 px-6 py-4 rounded-full text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-white border-0"
-            />
-            <Button className="bg-white text-blue-600 hover:bg-gray-100 px-8 py-4 rounded-full font-semibold">
-              Subscribe
-            </Button>
+            <div className="max-w-md mx-auto flex flex-col sm:flex-row gap-4">
+              <Input
+                type="email"
+                placeholder="Enter your email"
+                className="flex-1 px-6 py-4 rounded-xl text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-gray-300 border border-gray-200"
+              />
+              <Button className="bg-black text-white hover:bg-gray-800 px-8 py-4 rounded-xl font-medium">
+                Subscribe
+              </Button>
+            </div>
           </div>
         </div>
       </section>

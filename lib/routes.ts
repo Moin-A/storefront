@@ -8,11 +8,7 @@
       category_detail: '/shop/categories/[slug]',
       search: '/shop/search',
       cart: '/cart',
-      checkout: '/cart/checkout',
-      checkout_address: '/cart/checkout/address',
-      checkout_delivery: '/cart/checkout/delivery', 
-      checkout_payment: '/cart/checkout/payment',
-      checkout_complete: '/cart/checkout/complete',
+      checkout: '/checkout',
       login: '/account/login',
       register: '/account/register',
       password_change: '/password/change',
@@ -20,7 +16,7 @@
       orders: '/account/orders',
       order_detail: '/account/orders/[id]',
       addresses: '/account/addresses',
-      profile: '/account/profile'
+      profile: '/profile'
     },
     
     api: {
@@ -42,6 +38,7 @@
       taxons: '/api/taxons',
       taxon_detail: '/api/taxons/[id]',
       taxon_products: (id:string|number)=>`/api/taxons/${id}/products`,
+      category_taxons: (id:string|number)=>`/api/ ${id}/taxons`,
       
       // Cart/Orders
       current_order: '/api/orders/current',

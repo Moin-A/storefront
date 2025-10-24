@@ -21,7 +21,7 @@ export type SelectedOptions = {
   };
 };
 
-export default function ProductPage({ params }: { params: { id: string } }) {
+export default function ProductPage({ params }: { params: Promise<{ id: string }> }) {
   const [selectedImage, setSelectedImage] = useState(0)
   const [quantity, setQuantity] = useState(1)
   const [selectedVariant, setSelectedVariant] = useState<Record <string, any| undefined>>()
@@ -201,9 +201,9 @@ export default function ProductPage({ params }: { params: { id: string } }) {
   console.log(selectedVariant)
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-gray-50">
       {/* Breadcrumb */}
-      <div className="bg-gray-50 border-b sticky top-[4.2rem] z-40 overflow-hidden">
+      <div className="bg-white border-b border-gray-200 sticky top-[4.2rem] z-40 overflow-hidden shadow-sm">
         <div className="container mx-auto px-4 py-3">
           <nav className="flex items-center gap-2 text-sm text-gray-600">
             {(details?.primary_taxon ? details?.primary_taxon?.permalink.split("/") : details?.taxons[0]?.permalink.split("/"))?.map((part: string, index: number) => {
@@ -216,7 +216,7 @@ export default function ProductPage({ params }: { params: { id: string } }) {
                     <Link
                       key={index}
                       href={`/products?taxon=${part}`}
-                      className="text-gray-600 hover:text-blue-600 transition-colors"
+                      className="text-gray-600 hover:text-gray-900 transition-colors"
                     >
                       {part}
                     </Link>
@@ -228,7 +228,7 @@ export default function ProductPage({ params }: { params: { id: string } }) {
 
                   <span
                     key={index}
-                    className="cursor-pointer text-gray-600 hover:text-blue-600 transition-colors"
+                    className="cursor-pointer text-gray-900 font-medium"
                   >
                     {part}
                   </span>
@@ -245,12 +245,12 @@ export default function ProductPage({ params }: { params: { id: string } }) {
       </div>
 
 
-      <div className="container mx-auto px-4 py-8">
-        <div className="grid lg:grid-cols-2 gap-12">
+      <div className="container mx-auto px-4 py-12">
+        <div className="grid lg:grid-cols-2 gap-16">
           {/* Left Column - Images */}
           <div className="space-y-4 md:sticky md:top-[9rem] self-start overflow-hidden">
             {/* Main Image */}
-            <div className="relative aspect-square bg-gray-50 rounded-lg overflow-hidden">
+            <div className="relative aspect-square bg-white rounded-2xl overflow-hidden shadow-sm border border-gray-100">
                {loading && (
                         <div className="absolute inset-0 animate-pulse bg-gradient-to-r from-gray-200 via-gray-300 to-gray-200" />
                )}
@@ -266,25 +266,25 @@ export default function ProductPage({ params }: { params: { id: string } }) {
                 onLoadingComplete={() => setLoading(false)}
               />
               <div className="absolute top-4 right-4 flex gap-2">
-                <Button size="icon" variant="secondary" className="rounded-full bg-white/80 backdrop-blur-sm">
-                  <Heart className="h-4 w-4" />
+                <Button size="icon" variant="secondary" className="rounded-full bg-white/90 backdrop-blur-sm shadow-sm border border-gray-200">
+                  <Heart className="h-4 w-4 text-gray-600" />
                 </Button>
-                <Button size="icon" variant="secondary" className="rounded-full bg-white/80 backdrop-blur-sm">
-                  <Share className="h-4 w-4" />
+                <Button size="icon" variant="secondary" className="rounded-full bg-white/90 backdrop-blur-sm shadow-sm border border-gray-200">
+                  <Share className="h-4 w-4 text-gray-600" />
                 </Button>
               </div>
               {product.discount > 0 && (
-                <Badge className="absolute top-4 left-4 bg-blue-500 text-white">{product.discount}% OFF</Badge>
+                <Badge className="absolute top-4 left-4 bg-red-500 text-white">{product.discount}% OFF</Badge>
               )}
             </div>
 
             {/* Thumbnail Images */}
-            <div className="flex gap-2 overflow-x-auto">
-              {selectedVariant?.images.map((image, index) => (
+            <div className="flex gap-3 overflow-x-auto">
+              {selectedVariant?.images.map((image: any, index: number) => (
                 <button
                   key={index}
                   onClick={() => setSelectedImage(index)}
-                  className={`flex-shrink-0 w-20 h-20 rounded-lg overflow-hidden border-2 transition-colors ${selectedImage === index ? "border-blue-600" : "border-gray-200"
+                  className={`flex-shrink-0 w-20 h-20 rounded-xl overflow-hidden border-2 transition-all ${selectedImage === index ? "border-gray-900 shadow-md" : "border-gray-200 hover:border-gray-300"
                     }`}
                 >
                   <Image
@@ -303,13 +303,13 @@ export default function ProductPage({ params }: { params: { id: string } }) {
           <div className="space-y-8">
             {/* Product Title & Rating */}
             <div>
-              <div className="flex items-center gap-2 mb-2">
-                <span className="text-sm text-blue-600 font-medium uppercase tracking-wide">{product.brand}</span>
-                <Badge variant="outline" className="text-xs bg-blue-50 text-purple-700 border-purple-200">
+              <div className="flex items-center gap-3 mb-3">
+                <span className="text-sm text-gray-600 font-medium uppercase tracking-wide">{product.brand}</span>
+                <Badge variant="outline" className="text-xs bg-gray-100 text-gray-700 border-gray-200">
                   Best Seller
                 </Badge>
               </div>
-              <h1 className="text-4xl font-bold text-gray-900 mb-4 leading-tight">{details?.name}</h1>
+              <h1 className="text-4xl md:text-5xl font-light text-gray-900 mb-6 leading-tight">{details?.name}</h1>
               <div className="flex items-center gap-6 mb-6">
                 <div className="flex items-center gap-2">
                   {[1, 2, 3, 4, 5].map((star) => (
@@ -323,7 +323,7 @@ export default function ProductPage({ params }: { params: { id: string } }) {
             </div>
 
             {/* Price */}
-            <div className="bg-gradient-to-br from-purple-50 to-pink-50 p-6 rounded-2xl border border-purple-100 shadow-sm">
+            <div className="bg-white p-8 rounded-2xl border border-gray-200 shadow-sm">
               <div className="flex items-end gap-4 mb-3">
                 <span className="text-4xl font-extrabold text-gray-900 tracking-tight">
                   <span className="px-1">{getSymbolFromCurrency(details?.master?.cost_currency)}</span>
@@ -337,7 +337,7 @@ export default function ProductPage({ params }: { params: { id: string } }) {
                 )}
 
                 {product.discount > 0 && (
-                  <span className="bg-blue-500 text-white text-sm font-semibold px-3 py-1 rounded-full">
+                  <span className="bg-red-500 text-white text-sm font-semibold px-3 py-1.5 rounded-lg">
                     {product.discount}% OFF
                   </span>
                 )}
@@ -349,8 +349,8 @@ export default function ProductPage({ params }: { params: { id: string } }) {
                 </p>
               )}
 
-              <div className="text-sm text-gray-600 flex items-center gap-2">
-                <Truck className="w-4 h-4 text-blue-500" />
+              <div className="text-sm text-gray-500 flex items-center gap-2">
+                <Truck className="w-4 h-4 text-gray-600" />
                 Inclusive of all taxes • Free shipping above ₹499
               </div>
             </div>
@@ -404,25 +404,25 @@ export default function ProductPage({ params }: { params: { id: string } }) {
             {/* Quantity & Actions */}
             <div className="space-y-6">
               <div>
-                <h3 className="font-semibold text-lg text-gray-900 mb-4">Quantity</h3>
+                <h3 className="font-medium text-lg text-gray-900 mb-4">Quantity</h3>
                 <div className="flex items-center gap-4">
-                  <div className="flex items-center border-2 border-gray-300 rounded-xl overflow-hidden">
+                  <div className="flex items-center border-2 border-gray-200 rounded-xl overflow-hidden">
                     <Button
                       variant="ghost"
                       size="icon"
                       onClick={decrementQuantity}
                       disabled={quantity <= 1}
-                      className="h-12 w-12 hover:bg-blue-50"
+                      className="h-12 w-12 hover:bg-gray-50 rounded-none"
                     >
                       <Minus className="h-5 w-5" />
                     </Button>
-                    <span className="px-6 py-3 font-semibold text-lg min-w-[60px] text-center">{quantity}</span>
+                    <span className="px-6 py-3 font-medium text-lg min-w-[60px] text-center">{quantity}</span>
                     <Button
                       variant="ghost"
                       size="icon"
                       onClick={incrementQuantity}
                       disabled={quantity >= product.stockCount}
-                      className="h-12 w-12 hover:bg-blue-50"
+                      className="h-12 w-12 hover:bg-gray-50 rounded-none"
                     >
                       <Plus className="h-5 w-5" />
                     </Button>
@@ -440,7 +440,7 @@ export default function ProductPage({ params }: { params: { id: string } }) {
                   size="sm"
                   onClick={handleAddToCart}
                   disabled={addingToCart}
-                  className="w-[14rem] cursor-pointer bg-blue-600 hover:bg-blue-700 text-white py-6 text-base font-medium rounded-xl shadow-md hover:shadow-lg transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="w-[14rem] cursor-pointer bg-black hover:bg-gray-800 text-white py-6 text-base font-medium rounded-xl shadow-sm hover:shadow-md transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   <ShoppingCart className=" h-5 w-5" />
                   {addingToCart ? 'Adding...' : 'Add to Cart'}
@@ -448,7 +448,8 @@ export default function ProductPage({ params }: { params: { id: string } }) {
 
                 <Button
                   size="sm"
-                  className="w-[14rem] cursor-pointer bg-orange-600 hover:bg-orange-700 text-white py-6 text-base font-medium rounded-xl shadow-md hover:shadow-lg transition-all duration-200"
+                  className="w-[14rem] cursor-pointer border-2 border-gray-300 text-gray-700 hover:bg-gray-50 hover:border-gray-400 bg-white py-6 text-base font-medium rounded-xl shadow-sm transition-all duration-200"
+                  variant="outline"
                 >
                   <BaggageClaim className=" h-5 w-5" />
                   Buy Now
@@ -458,9 +459,8 @@ export default function ProductPage({ params }: { params: { id: string } }) {
             </div>
 
             {/* Delivery & Services */}
-            <Card className="border-0 shadow-sm bg-gradient-to-br from-gray-50 to-gray-100 rounded-2xl">
-              <CardContent className="p-6 space-y-6">
-                <h4 className="text-xl font-semibold text-gray-900">What You Get</h4>
+            <div className="border border-gray-200 shadow-sm bg-white rounded-2xl p-6 space-y-6">
+                <h4 className="text-xl font-medium text-gray-900">What You Get</h4>
 
                 <div className="space-y-5">
                   {/* Free Express Delivery */}
@@ -496,43 +496,43 @@ export default function ProductPage({ params }: { params: { id: string } }) {
                     </div>
                   </div>
                 </div>
-              </CardContent>
-
-            </Card>
+            </div>
 
             {/* Key Features */}
             <div>
-              <h3 className="font-semibold text-lg text-gray-900 mb-4">Why You'll Love It</h3>
-              <div className="grid grid-cols-1 gap-3">
+              <h3 className="font-medium text-lg text-gray-900 mb-4">Why You'll Love It</h3>
+              <ul className="space-y-2">
                 {product.features.map((feature, index) => (
-                  <div
+                  <li
                     key={index}
-                    className="flex items-center gap-3 p-3 bg-blue-50 rounded-lg border border-purple-100"
+                    className="flex items-start gap-3 text-gray-700"
                   >
-                    <div className="w-2 h-2 bg-blue-600 rounded-full"></div>
-                    <span className="text-gray-800 font-medium">{feature}</span>
-                  </div>
+                    <span className="text-gray-400 mt-1">•</span>
+                    <span className="text-gray-600">{feature}</span>
+                  </li>
                 ))}
-              </div>
+              </ul>
             </div>
           </div>
         </div>
 
-        <div>
-          <div className="mt-16">
-            <div className="border-b border-gray-200">
-              <nav className="flex gap-8">
-                {tabs.map(({ id, label, Component }) => (
-                  <button key={id} onClick={() => { setSelectedTab({ id, label, Component }) }} className={`py-4 px-1 text-gray-600 cursor-pointer hover:text-gray-900${selectedTab.id === id && tabStyleSelected}`}>
-                    {label}
-                  </button>
-                ))}
-              </nav>
-              <div className="py-8 h-48">
-                <div className="prose max-w-none">                  
-                  {selectedTab?.Component && <selectedTab.Component details = {details} name = "moin" />}
-                </div>
-              </div>
+        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden mt-8">
+          <div className="border-b border-gray-200">
+            <nav className="flex gap-8 px-8 pt-6">
+              {tabs.map(({ id, label, Component }) => (
+                <button 
+                  key={id} 
+                  onClick={() => { setSelectedTab({ id, label, Component }) }} 
+                  className={`pb-4 px-1 text-sm cursor-pointer transition-colors capitalize ${selectedTab.id === id ? 'border-b-2 border-gray-900 text-gray-900 font-medium' : 'text-gray-600 hover:text-gray-900'}`}
+                >
+                  {label}
+                </button>
+              ))}
+            </nav>
+          </div>
+          <div className="px-8 py-6">
+            <div className="prose prose-sm max-w-none text-gray-600">                  
+              {selectedTab?.Component && <selectedTab.Component details = {details} name = "moin" />}
             </div>
           </div>
         </div>

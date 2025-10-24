@@ -68,39 +68,30 @@ export default function HomePage() {
   }, [])
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-gray-50">
       {/* Hero Section */}
-      <section className="relative overflow-hidden bg-gradient-to-br from-gray-50 via-blue-300 to-blue-400">
-        {/* Decorative elements */}
-        <div className="absolute top-20 left-10 w-32 h-32 bg-blue-200 rounded-full opacity-30 blur-xl"></div>
-        <div className="absolute bottom-20 right-20 w-24 h-24 bg-blue-300 rounded-full opacity-20 blur-lg"></div>
-        <div className="container mx-auto px-4 py-16 md:py-24">
+      <section className="relative overflow-hidden bg-gradient-to-br from-blue-50 to-indigo-100">
+        <div className="container mx-auto px-4 py-20 md:py-32">
           <div className="grid lg:grid-cols-2 gap-12 items-center">
             {/* Left Content */}
             <div className="text-center lg:text-left">
-              <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold mb-6">
-                <span className="bg-gradient-to-r from-blue-600 via-blue-500 to-blue-400 bg-clip-text text-transparent">
-                  Discover
-                </span>
+              <h1 className="text-6xl md:text-7xl lg:text-8xl font-light text-gray-900 mb-8">
+                Discover
                 <br />
-                <span className="bg-gradient-to-r from-blue-600 via-blue-500 to-blue-400 bg-clip-text text-transparent">
-                  Premium
-                </span>
+                Premium
                 <br />
-                <span className="bg-gradient-to-r from-blue-600 via-blue-500 to-blue-400 bg-clip-text text-transparent">
-                  Collections
-                </span>
+                Collections
               </h1>
 
-              <p className="text-lg md:text-xl text-gray-600 mb-8 max-w-lg mx-auto lg:mx-0">
+              <p className="text-xl md:text-2xl text-gray-600 mb-12 max-w-2xl mx-auto lg:mx-0">
                 Elevate your lifestyle with our curated selection of premium products. Quality craftsmanship meets
                 modern design.
               </p>
 
-              <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
+              <div className="flex flex-col sm:flex-row gap-6 justify-center lg:justify-start">
                 <Button
                   size="lg"
-                  className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-6 text-lg font-semibold rounded-full"
+                  className="bg-black hover:bg-gray-800 text-white px-10 py-4 text-lg font-medium rounded-xl"
                 >
                   Shop Now
                   <ArrowRight className="ml-2 h-5 w-5" />
@@ -108,7 +99,7 @@ export default function HomePage() {
                 <Button
                   variant="outline"
                   size="lg"
-                  className="border-2 border-gray-300 text-gray-700 hover:border-blue-600 hover:text-blue-600 px-8 py-6 text-lg font-semibold rounded-full bg-white"
+                  className="border-2 border-gray-300 text-gray-700 hover:border-gray-400 hover:bg-gray-50 px-10 py-4 text-lg font-medium rounded-xl bg-white"
                 >
                   View Collections
                 </Button>
@@ -123,7 +114,7 @@ export default function HomePage() {
                   alt="Premium product collection"
                   width={600}
                   height={500}
-                  className="w-full h-auto object-contain rounded-lg"
+                  className="w-full h-auto object-contain rounded-2xl shadow-sm"
                   priority
                 />
               }
@@ -133,28 +124,28 @@ export default function HomePage() {
       </section>
 
       {/* Featured Products Section */}
-      <section className="py-16 md:py-24 bg-white">
+      <section className="py-20 md:py-32 bg-gradient-to-br from-gray-50 to-slate-100">
         <div className="container mx-auto px-4">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">Featured Products</h2>
-            <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+          <div className="text-center mb-16">
+            <h2 className="text-4xl md:text-5xl font-light text-gray-900 mb-6">Featured Products</h2>
+            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
               Discover our handpicked selection of premium products designed to enhance your everyday life
             </p>
           </div>
 
           {/* Product Grid */}
-          <div className="flex overflow-x-auto gap-4 pb-4 scrollbar-hide">
+          <div className="flex overflow-x-auto gap-6 pb-6 scrollbar-hide">
             {getFeatureproducts.map(({ name, images, id, slug }) => (
               <Link key={id} href={`/product/${slug}`}>
                 <div
                   key={id}
                   className={cn(
-                    "cursor-pointer transition-all duration-300 border border-gray-200 shadow-sm hover:shadow-md rounded-lg overflow-hidden w-48 bg-white",
+                    "cursor-pointer transition-all duration-300 border border-gray-100 shadow-sm hover:shadow-lg rounded-2xl overflow-hidden w-56 bg-white",
                   )}>
                   <div
                     key={id}
                     className={cn(
-                      "cursor-pointer transition-all duration-300 border border-gray-200 shadow-sm hover:shadow-md rounded-lg overflow-hidden w-48 bg-white",
+                      "cursor-pointer transition-all duration-300 border border-gray-100 shadow-sm hover:shadow-lg rounded-2xl overflow-hidden w-56 bg-white",
                     )}>
                     {/* Image with skeleton */}
                     <div className="relative w-full h-56 bg-gray-100">
@@ -162,18 +153,12 @@ export default function HomePage() {
                         <div className="absolute inset-0 animate-pulse bg-gradient-to-r from-gray-200 via-gray-300 to-gray-200" />
                       )}
                       <ImageCard
-                       images={images}
-                        alt={name || "Product image"}
-                        fill
-                        className={cn(
-                          "object-cover transition-opacity duration-500",
-                          loading ? "opacity-0" : "opacity-100"
-                        )}
-                        onLoadingComplete={() => setLoading(false)}
+                        images={images || []}
+                        name={name || "Product image"}
                       />
                     </div>
                     {/* Content */}
-                    <div className="p-3 flex flex-col gap-1 text-sm">
+                    <div className="p-4 flex flex-col gap-2 text-sm">
                       <h3 className="font-medium leading-tight text-gray-900 line-clamp-2">
                         {name}
                       </h3>
@@ -190,11 +175,11 @@ export default function HomePage() {
             ))}
           </div>
 
-          <div className="text-center">
+          <div className="text-center mt-12">
             <Button
               variant="outline"
               size="lg"
-              className="border-2 border-blue-600 text-blue-600 hover:bg-blue-600 hover:text-white px-8 text-lg font-semibold rounded-full bg-transparent"
+              className="border-2 border-gray-300 text-gray-700 hover:bg-gray-50 hover:border-gray-400 px-8 py-4 text-base font-medium rounded-xl bg-transparent"
             >
               View All Products
               <ArrowRight className="ml-2 h-5 w-5" />
@@ -204,86 +189,92 @@ export default function HomePage() {
       </section>
 
       {/* Shop by Category Section */}
-      <section className="py-16 md:py-24 bg-gray-50">
+      <section className="py-20 md:py-32 bg-gradient-to-br from-white to-gray-50">
         <div className="container mx-auto px-4">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">Shop by Category</h2>
-            <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+          <div className="text-center mb-16">
+            <h2 className="text-4xl md:text-5xl font-light text-gray-900 mb-6">Shop by Category</h2>
+            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
               Browse our carefully curated categories to find exactly what you're looking for
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
             {/* Electronics */}
-            <Card className="group cursor-pointer hover:shadow-xl transition-all duration-300 border-0 shadow-md">
-              <CardContent className="p-6 text-center">
-                <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:bg-blue-200 transition-colors">
-                  <span className="text-2xl">📱</span>
+            <Link href={'/products/categories/electronics'}>
+            <div className="group cursor-pointer hover:shadow-lg transition-all duration-300 bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+              <div className="p-8 text-center">
+                <div className="w-20 h-20 bg-blue-50 rounded-2xl flex items-center justify-center mx-auto mb-6 group-hover:bg-blue-100 transition-colors">
+                  <span className="text-3xl">📱</span>
                 </div>
-                <h3 className="text-xl font-semibold text-gray-900 mb-2">Electronics</h3>
+                <h3 className="text-xl font-medium text-gray-900 mb-3">Electronics</h3>
                 <p className="text-gray-600 mb-2">120+ items</p>
                 <p className="text-sm text-gray-500">Latest tech gadgets</p>
-              </CardContent>
-            </Card>
+              </div>
+            </div>
+            </Link>
 
             {/* Fashion */}
-            <Card className="group cursor-pointer hover:shadow-xl transition-all duration-300 border-0 shadow-md">
-              <CardContent className="p-6 text-center">
-                <div className="w-16 h-16 bg-pink-100 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:bg-pink-200 transition-colors">
-                  <span className="text-2xl">👗</span>
+            <div className="group cursor-pointer hover:shadow-lg transition-all duration-300 bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+               <Link href={'/products/categories/fashion'}>
+              <div className="p-8 text-center">
+                <div className="w-20 h-20 bg-pink-50 rounded-2xl flex items-center justify-center mx-auto mb-6 group-hover:bg-pink-100 transition-colors">
+                  <span className="text-3xl">👗</span>
                 </div>
-                <h3 className="text-xl font-semibold text-gray-900 mb-2">Fashion</h3>
+                <h3 className="text-xl font-medium text-gray-900 mb-3">Fashion</h3>
                 <p className="text-gray-600 mb-2">250+ items</p>
                 <p className="text-sm text-gray-500">Trendy clothing & accessories</p>
-              </CardContent>
-            </Card>
+              </div>
+              </Link>
+            </div>
 
             {/* Home & Living */}
-            <Card className="group cursor-pointer hover:shadow-xl transition-all duration-300 border-0 shadow-md">
-              <CardContent className="p-6 text-center">
-                <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:bg-green-200 transition-colors">
-                  <span className="text-2xl">🏠</span>
+            <div className="group cursor-pointer hover:shadow-lg transition-all duration-300 bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+              <div className="p-8 text-center">
+                <div className="w-20 h-20 bg-green-50 rounded-2xl flex items-center justify-center mx-auto mb-6 group-hover:bg-green-100 transition-colors">
+                  <span className="text-3xl">🏠</span>
                 </div>
-                <h3 className="text-xl font-semibold text-gray-900 mb-2">Home & Living</h3>
+                <h3 className="text-xl font-medium text-gray-900 mb-3">Home & Living</h3>
                 <p className="text-gray-600 mb-2">180+ items</p>
                 <p className="text-sm text-gray-500">Beautiful home essentials</p>
-              </CardContent>
-            </Card>
+              </div>
+            </div>
 
             {/* Sports & Fitness */}
-            <Card className="group cursor-pointer hover:shadow-xl transition-all duration-300 border-0 shadow-md">
-              <CardContent className="p-6 text-center">
-                <div className="w-16 h-16 bg-orange-100 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:bg-orange-200 transition-colors">
-                  <span className="text-2xl">⚽</span>
+            <div className="group cursor-pointer hover:shadow-lg transition-all duration-300 bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+              <div className="p-8 text-center">
+                <div className="w-20 h-20 bg-orange-50 rounded-2xl flex items-center justify-center mx-auto mb-6 group-hover:bg-orange-100 transition-colors">
+                  <span className="text-3xl">⚽</span>
                 </div>
-                <h3 className="text-xl font-semibold text-gray-900 mb-2">Sports & Fitness</h3>
+                <h3 className="text-xl font-medium text-gray-900 mb-3">Sports & Fitness</h3>
                 <p className="text-gray-600 mb-2">95+ items</p>
                 <p className="text-sm text-gray-500">Gear for active lifestyle</p>
-              </CardContent>
-            </Card>
+              </div>
+            </div>
           </div>
         </div>
       </section>
 
       {/* Newsletter Section */}
-      <section className="py-16 md:py-24 bg-gradient-to-r from-blue-600 to-purple-700">
+      <section className="py-20 md:py-32 bg-gradient-to-br from-purple-50 to-pink-50">
         <div className="container mx-auto px-4 text-center">
-          <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">Stay in the Loop</h2>
-          <p className="text-xl text-purple-100 mb-8 max-w-2xl mx-auto">
-            Subscribe to our newsletter and be the first to know about new arrivals, exclusive offers, and special
-            events.
-          </p>
-          <div className="max-w-md mx-auto flex flex-col sm:flex-row gap-4 mb-4">
-            <Input
-              type="email"
-              placeholder="Enter your email"
-              className="flex-1 px-6 py-4 rounded-full text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-white border-0"
-            />
-            <Button className="bg-white text-blue-600 hover:bg-gray-100 px-8 py-4 rounded-full font-semibold">
-              Subscribe
-            </Button>
+          <div className="max-w-3xl mx-auto">
+            <h2 className="text-4xl md:text-5xl font-light text-gray-900 mb-6">Stay in the Loop</h2>
+            <p className="text-xl text-gray-600 mb-12">
+              Subscribe to our newsletter and be the first to know about new arrivals, exclusive offers, and special
+              events.
+            </p>
+            <div className="max-w-md mx-auto flex flex-col sm:flex-row gap-4 mb-6">
+              <Input
+                type="email"
+                placeholder="Enter your email"
+                className="flex-1 px-6 py-4 rounded-xl text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-gray-300 border border-gray-200"
+              />
+              <Button className="bg-black text-white hover:bg-gray-800 px-8 py-4 rounded-xl font-medium">
+                Subscribe
+              </Button>
+            </div>
+            <p className="text-sm text-gray-500">We respect your privacy. Unsubscribe at any time.</p>
           </div>
-          <p className="text-sm text-purple-200">We respect your privacy. Unsubscribe at any time.</p>
         </div>
       </section>
 

@@ -85,7 +85,7 @@ export default function PasswordChangePage() {
       }
    
       setIsSuccess(true)
-      addNotification('success', 'Password reset successfully! You can now sign in with your new password.', true)
+      addNotification('success', data.message, true)
       
       // Redirect to login page after 3 seconds
       setTimeout(() => {
