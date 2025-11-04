@@ -9,7 +9,7 @@ export type User = {
 };
 
 export type Address = {
-  id?: number;
+  id?: number|string;
   firstname?: string;
   lastname?: string;
   address1?: string;
@@ -64,6 +64,7 @@ export type Cart = {
   item_count?: number;
   line_items?: LineItem[];
   email?: string;
+  ship_total: string
 };
 
 export type Order = {

@@ -58,7 +58,6 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
         setDetails(data);
         setSelectedVariant(data?.variants_including_master.find((item: any)=>item.is_master))       
       } catch (err: any) {
-        console.error(err)
         setError(err.message)
       }
     }

@@ -12,6 +12,7 @@ type OrderState = {
   setCurrentOrder: (order: Order | null) => void;
   clearOrders: () => void;
   setHasHydrated: (value: boolean) => void;
+  fetchOrder: () => void;
 };
 
 export const useOrderStore = create<OrderState>()(
@@ -38,6 +39,10 @@ export const useOrderStore = create<OrderState>()(
               ? { ...currentOrder, ...orderData }
               : currentOrder
           });
+        },
+        fetchOrder: async () => {
+          const response = await fetch('/api/users/orders');
+          return response;
         },
         setCurrentOrder: (currentOrder) => set({ currentOrder }),
         clearOrders: () => set({ orders: [], currentOrder: null }),

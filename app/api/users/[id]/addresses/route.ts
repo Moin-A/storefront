@@ -7,7 +7,7 @@ export async function GET(request: NextRequest,
 
    const { id } = await params;
    const cookies = request.headers.get('cookie') || '';
-   console.log("api_url",process.env.SOLIDUS_API_URL)
+   
     const response = fetch(`${process.env.API_URL}/api/addresses`, {
       headers: {
         'Content-Type': 'application/json',

@@ -29,24 +29,7 @@ import {
   Truck
 } from 'lucide-react';
 import { useUIStore } from '../store/useUIStore';
-
-// Countries list - India and neighboring countries
-const COUNTRIES = [
-  { id: '105', name: 'India' },
- 
-];
-
-// Indian States
-const STATES = [
-  { id: '1163', name: 'Arunachal Pradesh' },
-  { id: '1164', name: 'Assam' },
-];
-
-// Address Types
-const ADDRESS_TYPES = [
-  { id: 'shipping', name: 'Shipping' },
-  { id: 'billing', name: 'Billing' },
-];
+import { COUNTRIES, STATES, ADDRESS_TYPES } from '../../lib/constants';
 
 // Mock data for reviews (you'll replace this with actual API calls)
 const mockReviews = [
@@ -70,11 +53,10 @@ const mockReviews = [
 
 export default function ProfilePage() {
   const addNotification = useUIStore((state: any) => state.addNotification);
-  const { user, isAuthenticated } = useUserStore();
+  const { user, isAuthenticated, fetchDefaultAddress, Defaultaddress, setDefaultAddress } = useUserStore();
   const { orders } = useOrderStore();
   const [activeTab, setActiveTab] = useState<'overview' | 'orders' | 'addresses' | 'reviews'>('overview');
   const [userOrders, setUserOrders] = useState<Order[]>([]);
-  const [userAddresses, setUserAddresses] = useState<Address[]>([]);
   const [loading, setLoading] = useState(true);
   
 
@@ -88,20 +70,15 @@ export default function ProfilePage() {
   const fetchUserData = async () => {
     try {
       setLoading(true);
-      // TODO: Replace with actual API calls
-      // const ordersResponse = await fetch('/api/user/orders');
-      const addressesResponse = await fetch('/api/users/current/addresses');
-      const data = await addressesResponse.json() || []
-      // For now, use mock data
+      fetchDefaultAddress();
       setUserOrders(orders || []);
-      setUserAddresses(data || []);
     } catch (error) {
       console.error('Error fetching user data:', error);
     } finally {
       setLoading(false);
     }
   };
-
+  
   const createAddress = async (addressData: any) => {
     try {
       const response = await fetch('/api/addresses', {
@@ -114,7 +91,7 @@ export default function ProfilePage() {
 
       if (response.ok) {
         const newAddress = await response.json();
-        setUserAddresses([...userAddresses, newAddress]);
+        setDefaultAddress(newAddress); // Update the store for other components
         addNotification('success', 'Address created successfully!');
         return { success: true, data: newAddress };
       } else {
@@ -203,7 +180,7 @@ export default function ProfilePage() {
           <div className="lg:col-span-3">
             {activeTab === 'overview' && <OverviewTab user={user} orders={userOrders} />}
             {activeTab === 'orders' && <OrdersTab orders={userOrders} loading={loading} />}
-            {activeTab === 'addresses' && <AddressesTab addresses={userAddresses} loading={loading} onCreateAddress={createAddress} />}
+            {activeTab === 'addresses' && <AddressesTab addresses={Defaultaddress} loading={loading} onCreateAddress={createAddress} />}
             {activeTab === 'reviews' && <ReviewsTab reviews={mockReviews} />}
           </div>
         </div>
@@ -391,7 +368,7 @@ function AddressesTab({ addresses, loading, onCreateAddress }: { addresses: Addr
           country_id: '',
           phone: '',
           address_type: '',
-          is_default: false
+          default: false
         });
         setShowAddForm(false);
       }
@@ -558,7 +535,7 @@ function AddressesTab({ addresses, loading, onCreateAddress }: { addresses: Addr
             <div className="flex items-center space-x-2">
               <Checkbox 
                 id="new-is-default"
-                checked={newAddress.is_default}
+                checked={newAddress.default}
                 onCheckedChange={(checked) => setNewAddress({...newAddress, default: checked as boolean})}
               />
               <Label htmlFor="new-is-default" className="text-sm font-medium">

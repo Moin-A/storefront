@@ -18,7 +18,7 @@ export async function GET(request: Request, { params }: { params: { id: string }
 	};
 
 	// Proxy to backend: GET /api/categories/:id/taxons
-	debugger
+
 	const endpoint = SOLIDUS_ROUTES.api.category_taxons(`categories/${id}`);
 	const response = await api.request(endpoint, requestConfig);
 

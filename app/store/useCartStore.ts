@@ -50,7 +50,10 @@ export const useCartStore = create<CartState>()(
             }
           });
         },
-        clearCart: () => set({ cart: null }),
+        clearCart: () =>{ 
+          set({ cart: null })
+          localStorage.removeItem('cart-storage')
+        },
         setHasHydrated: (value) => set({ hasHydrated: value }),
         fetchCart: async () => {
           try {

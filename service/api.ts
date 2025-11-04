@@ -23,6 +23,14 @@ export class SolidusAPI {
 
       const response = await fetch(`${this.baseURL}${endpoint}`, config);
 
+    
+      if (response.status === 422 || response.status === 401 || response.status === 402) {
+       if (typeof window !== 'undefined') {
+         localStorage.clear();
+         sessionStorage.clear();
+       }
+      }
+
       return response;
     }
 }

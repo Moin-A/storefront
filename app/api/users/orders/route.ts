@@ -3,18 +3,15 @@ import { cookies } from 'next/headers';
 
 export async function GET(request: NextRequest) {
   try {
-    const cookieStore = cookies();
-    const token = cookieStore.get('spree_api_key')?.value;
+    const cookies = request.headers.get('cookie') || '';
+   
 
-    if (!token) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
-
+  
     // Fetch user orders from Solidus API
     const response = await fetch(`${process.env.API_URL}/api/orders`, {
       headers: {
-        'Authorization': `Bearer ${token}`,
         'Content-Type': 'application/json',
+        'Cookie': cookies
       },
     });
 

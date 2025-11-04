@@ -9,10 +9,12 @@ import { SOLIDUS_ROUTES } from '../../lib/routes';
 import { Cart, LineItem } from '../types/solidus';
 import Link from 'next/link';
 import Image from 'next/image';
+import { useUserStore } from '../store/userStore';
 
 export default function CartPage() {
     const router = useRouter();
     const { cart, fetchCart,setCart } = useCartStore();
+    const { fetchDefaultAddress } = useUserStore();
     const [loading, setLoading] = useState(true);
     const [updatingItems, setUpdatingItems] = useState<Set<number>>(new Set());
 
@@ -20,6 +22,7 @@ export default function CartPage() {
         setLoading(true);
         const loadCart = async () => {
             await fetchCart();
+            await fetchDefaultAddress();
             setLoading(false);
         };
         loadCart();
@@ -287,7 +290,7 @@ export default function CartPage() {
                             
                             <div className="flex justify-between text-sm">
                                 <span className="text-gray-600">Shipping</span>
-                                <span className="font-medium text-gray-900">$0.00</span>
+                                <span className="font-medium text-gray-900">{cart.ship_total}</span>
                             </div>
                             
                             <div className="flex justify-between text-sm">
@@ -305,7 +308,9 @@ export default function CartPage() {
                             <Button 
                                 className="w-full mt-6 bg-black hover:bg-gray-800 text-white rounded-xl py-4 text-base font-medium transition-all duration-200" 
                                 size="lg"
-                                onClick={() => router.push(SOLIDUS_ROUTES.frontend.checkout)}
+                                onClick={ async() => {
+                                    router.push(SOLIDUS_ROUTES.frontend.checkout)
+                                }}
                             >
                                 Checkout →
                             </Button>
