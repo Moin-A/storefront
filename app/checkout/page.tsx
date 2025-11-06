@@ -31,7 +31,7 @@ import DeliveryStep from '../../components/checkout/DeliveryStep';
 
   export default function CheckoutPage() {
     const { cart, fetchCart } = useCartStore();
-    const { fetchOrder } = useOrderStore(); // Initialize order store
+    const { fetchShippingMethods, shippingData } = useOrderStore(); // Initialize order store
     const { user, isAuthenticated, fetchDefaultAddress, Defaultaddress } = useUserStore();
     const { addOrder } = useOrderStore();
     const addNotification = useUIStore((state: any) => state.addNotification);
@@ -73,10 +73,9 @@ import DeliveryStep from '../../components/checkout/DeliveryStep';
     useEffect(() => {
       if (isAuthenticated && user) {
         fetchCart();
-        fetchOrder();
         fetchDefaultAddress();
+        fetchShippingMethods();
         const cartState = cart?.state;
-
         setCurrentStep((cart?.state as CheckoutStep) || 'address');
       }
     }, [isAuthenticated, user]);
@@ -94,7 +93,7 @@ import DeliveryStep from '../../components/checkout/DeliveryStep';
       return (defaultShipping as any)?.id as number | undefined;
     };
 
-    const handleNextStep = async () => {
+    const handleNextStep = async (optionalMethod?: any) => {
       if (currentStep === 'address') {
         // Check if using default addresses or if addresses are selected
         const hasBillingAddress = useDefaultBilling || selectedBillingAddress;
@@ -318,7 +317,7 @@ import DeliveryStep from '../../components/checkout/DeliveryStep';
               )}
 
               {currentStep === 'delivery' && (
-                <DeliveryStep />
+                <DeliveryStep onNext={(selectedMethod) => handleNextStep(selectedMethod)} />
               )}
 
               {currentStep === 'payment' && (

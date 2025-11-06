@@ -54,7 +54,7 @@ const mockReviews = [
 export default function ProfilePage() {
   const addNotification = useUIStore((state: any) => state.addNotification);
   const { user, isAuthenticated, fetchDefaultAddress, Defaultaddress, setDefaultAddress } = useUserStore();
-  const { orders } = useOrderStore();
+  const { orders, fetchOrder } = useOrderStore();
   const [activeTab, setActiveTab] = useState<'overview' | 'orders' | 'addresses' | 'reviews'>('overview');
   const [userOrders, setUserOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
@@ -64,6 +64,7 @@ export default function ProfilePage() {
     if (isAuthenticated && user) {
       // Fetch user orders and addresses
       fetchUserData();
+      fetchOrder()
     }
   }, [isAuthenticated, user]);
 
@@ -191,10 +192,20 @@ export default function ProfilePage() {
 
 // Overview Tab Component
 function OverviewTab({ user, orders }: { user: User | null; orders: Order[] }) {
-  const totalOrders = orders.length;
-  const totalSpent = orders.reduce((sum, order) => {
-    return sum + parseFloat(order.total?.replace('$', '') || '0');
-  }, 0);
+  // Ensure `orders` is an array at runtime (persisted state or API may return an object)
+  const safeOrders = Array.isArray(orders) ? orders : [];
+  const totalOrders = safeOrders.length;
+
+  const parseCurrency = (v?: string | number | null) => {
+    if (v == null) return 0;
+    if (typeof v === 'number') return v;
+    // Remove any non-digit except dot and minus (strips $, commas, spaces, etc.)
+    const cleaned = String(v).replace(/[^\d.-]+/g, '');
+    const n = parseFloat(cleaned);
+    return Number.isFinite(n) ? n : 0;
+  };
+
+  const totalSpent = safeOrders.reduce((sum, order) => sum + parseCurrency(order.total), 0);
 
   return (
     <div className="space-y-6">
@@ -265,14 +276,7 @@ function OrdersTab({ orders, loading }: { orders: Order[]; loading: boolean }) {
 
   return (
     <Card className="p-6">
-      <div className="flex items-center justify-between mb-6">
-        <h2 className="text-xl font-semibold text-gray-900">Order History</h2>
-        <Button variant="outline" size="sm">
-          <Plus className="h-4 w-4 mr-2" />
-          New Order
-        </Button>
-      </div>
-
+    
       {orders.length > 0 ? (
         <div className="space-y-4">
           {orders.map((order) => (

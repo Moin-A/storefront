@@ -102,3 +102,19 @@ export type TaxonDetail = {
   meta_keywords?: string | null;
   depth?: number;
 };
+
+export type ShippingMethod = {
+  shipping_rate_id: string;
+  shipment_id: string;
+  name: string;
+  display_cost: string;
+  admin_name?: string;
+  shipment?: {
+    shipping_rates: Array<{
+      id: string;
+      name: string;
+      cost: string;
+      display_cost: string;
+    }>;
+  };
+};

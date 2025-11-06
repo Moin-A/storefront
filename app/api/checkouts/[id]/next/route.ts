@@ -8,7 +8,6 @@ export async function PUT(
 ) {
   const { id } = await params;
   const cookies = request.headers.get('cookie') || '';
-  const body = await request.json();
   
   const api = new SolidusAPI();
   
@@ -18,7 +17,6 @@ export async function PUT(
       'Content-Type': 'application/json',
       'Cookie': cookies
     },
-    body: JSON.stringify(body),
     credentials: 'include' as RequestCredentials
   };
 

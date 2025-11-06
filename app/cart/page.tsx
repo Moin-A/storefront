@@ -308,8 +308,32 @@ export default function CartPage() {
                             <Button 
                                 className="w-full mt-6 bg-black hover:bg-gray-800 text-white rounded-xl py-4 text-base font-medium transition-all duration-200" 
                                 size="lg"
-                                onClick={ async() => {
-                                    router.push(SOLIDUS_ROUTES.frontend.checkout)
+                                onClick={async () => {
+                                    // Only call API if cart state is "Cart"
+                                    if (cart?.state === 'cart' || cart?.state === 'Cart') {
+                                        try {
+                                            const response = await fetch(SOLIDUS_ROUTES.api.checkout_next(cart?.number), {
+                                                method: 'PUT',
+                                                headers: {
+                                                    'Content-Type': 'application/json',
+                                                },
+                                                credentials: 'include'
+                                            });
+
+                                            if (response.ok) {
+                                                // Refresh cart to get updated state
+                                                await fetchCart();
+                                                router.push(SOLIDUS_ROUTES.frontend.checkout);
+                                            } else {
+                                                console.error('Failed to advance checkout');
+                                            }
+                                        } catch (error) {
+                                            console.error('Error advancing checkout:', error);
+                                        }
+                                    } else {
+                                        // If not in cart state, just navigate
+                                        router.push(SOLIDUS_ROUTES.frontend.checkout);
+                                    }
                                 }}
                             >
                                 Checkout →
