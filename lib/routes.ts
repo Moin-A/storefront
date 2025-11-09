@@ -33,6 +33,7 @@ export const SOLIDUS_ROUTES = {
     product_detail: '/api/products/[id]',
     product_variants: '/api/products/[id]/variants',
     product_properties: (id:string|number)=>`/api/products/${id}/product_properties`,
+    search_products: '/api/search/products',
     
     // Categories/Taxons
     taxons: '/api/taxons',

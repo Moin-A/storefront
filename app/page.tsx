@@ -135,7 +135,7 @@ export default function HomePage() {
 
           {/* Product Grid */}
           <div className="flex overflow-x-auto gap-6 pb-6 scrollbar-hide">
-            {getFeatureproducts.map(({ name, images, id, slug }) => (
+            {getFeatureproducts?.products?.map(({ name, images, id, slug }) => (
               <Link key={id} href={`/product/${slug}`}>
                 <div
                   key={id}

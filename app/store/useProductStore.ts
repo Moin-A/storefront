@@ -30,7 +30,7 @@ type Product = {
 };
 
 type ProductState = {
-  products: Product[];
+  products: {products: Product[]};
   currentProduct: Product | null;
   wishlist: Product[];
   hasHydrated: boolean;

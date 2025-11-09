@@ -1,13 +1,13 @@
 "use client"
 
-import { useState, useEffect, use } from "react"
+import { useState, useEffect, useRef, useCallback, use } from "react"
+import type { PointerEvent as ReactPointerEvent } from "react"
 import { Button } from "../../../components/ui/button"
 import { Card, CardContent } from "../../../components/ui/card"
 import { Badge } from "../../../components/ui/badge"
 import { Input } from "../../../components/ui/input"
 import { Checkbox } from "../../../components/ui/checkbox"
 import { Label } from "../../../components/ui/label"
-import { Slider } from "../../../components/ui/slider"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../../../components/ui/select"
 import { Search, ShoppingCart, Star, Heart, Filter, ChevronDown } from "lucide-react"
 import Image from "next/image"
@@ -16,17 +16,203 @@ import { SOLIDUS_ROUTES } from '../../../lib/routes'
 import { motion, AnimatePresence } from "framer-motion"
 import type { TaxonDetail } from "../../types/solidus"
 
+type PriceRangeSliderProps = {
+  min: number
+  max: number
+  value: [number, number]
+  onChange: (value: [number, number]) => void
+  step?: number
+}
 
-export default function GamesPage({ params }: { params: { id: string | string[] } }) {
-  const [priceRange, setPriceRange] = useState([299, 19999])
+const PriceRangeSlider = ({
+  min,
+  max,
+  value,
+  onChange,
+  step = 1,
+}: PriceRangeSliderProps) => {
+  const trackRef = useRef<HTMLDivElement | null>(null)
+  const valueRef = useRef<[number, number]>(value)
+
+  useEffect(() => {
+    valueRef.current = value
+  }, [value])
+
+  useEffect(() => {
+    return () => {
+      document.body.style.userSelect = ""
+    }
+  }, [])
+
+  const clampToStep = useCallback(
+    (rawValue: number) => {
+      const bounded = Math.min(max, Math.max(min, rawValue))
+      const effectiveStep = Math.max(step, 1)
+      const snapped =
+        Math.round((bounded - min) / effectiveStep) * effectiveStep + min
+      return Math.min(max, Math.max(min, snapped))
+    },
+    [max, min, step]
+  )
+
+  const updateHandleValue = useCallback(
+    (clientX: number, handle: "left" | "right") => {
+      if (!trackRef.current) return
+
+      const rect = trackRef.current.getBoundingClientRect()
+      if (rect.width === 0) return
+
+      const ratio = Math.min(1, Math.max(0, (clientX - rect.left) / rect.width))
+      const rawValue = min + ratio * (max - min)
+      const snappedValue = clampToStep(rawValue)
+
+      const [leftValue, rightValue] = valueRef.current
+      const effectiveStep = Math.max(step, 1)
+
+      if (handle === "left") {
+        const maxLeft = Math.min(rightValue - effectiveStep, max)
+        const nextLeft = Math.min(snappedValue, maxLeft)
+        if (nextLeft !== leftValue) {
+          const safeLeft = Math.max(min, Math.min(nextLeft, maxLeft))
+          onChange([safeLeft, rightValue])
+        }
+      } else {
+        const minRight = Math.max(leftValue + effectiveStep, min)
+        const nextRight = Math.max(snappedValue, minRight)
+        if (nextRight !== rightValue) {
+          const safeRight = Math.min(max, Math.max(nextRight, minRight))
+          onChange([leftValue, safeRight])
+        }
+      }
+    },
+    [clampToStep, max, min, onChange, step]
+  )
+
+  const startDragging = useCallback(
+    (handle: "left" | "right", nativeEvent?: PointerEvent) => {
+      const handlePointerMove = (moveEvent: PointerEvent) => {
+        updateHandleValue(moveEvent.clientX, handle)
+      }
+
+      const handlePointerUp = () => {
+        window.removeEventListener("pointermove", handlePointerMove)
+        window.removeEventListener("pointerup", handlePointerUp)
+        window.removeEventListener("pointercancel", handlePointerUp)
+        if (nativeEvent?.target instanceof HTMLElement) {
+          nativeEvent.target.releasePointerCapture(nativeEvent.pointerId)
+        }
+        document.body.style.userSelect = ""
+      }
+
+      window.addEventListener("pointermove", handlePointerMove)
+      window.addEventListener("pointerup", handlePointerUp)
+      window.addEventListener("pointercancel", handlePointerUp)
+
+      if (nativeEvent?.target instanceof HTMLElement) {
+        nativeEvent.target.setPointerCapture(nativeEvent.pointerId)
+      }
+      document.body.style.userSelect = "none"
+    },
+    [updateHandleValue]
+  )
+
+  const handleThumbPointerDown = useCallback(
+    (handle: "left" | "right") =>
+      (event: ReactPointerEvent<HTMLButtonElement>) => {
+        event.preventDefault()
+        event.stopPropagation()
+        updateHandleValue(event.clientX, handle)
+        startDragging(handle, event.nativeEvent)
+      },
+    [startDragging, updateHandleValue]
+  )
+
+  const handleTrackPointerDown = useCallback(
+    (event: ReactPointerEvent<HTMLDivElement>) => {
+      if (!trackRef.current) return
+      event.preventDefault()
+
+      const [leftValue, rightValue] = valueRef.current
+      const midpoint = (leftValue + rightValue) / 2
+      const rect = trackRef.current.getBoundingClientRect()
+      const clickValue = min + ((event.clientX - rect.left) / rect.width) * (max - min)
+
+      const handle = clickValue <= midpoint ? "left" : "right"
+      updateHandleValue(event.clientX, handle)
+      startDragging(handle, event.nativeEvent)
+    },
+    [max, min, startDragging, updateHandleValue]
+  )
+
+  const range = Math.max(max - min, 1)
+  const leftPercent = ((value[0] - min) / range) * 100
+  const rightPercent = ((value[1] - min) / range) * 100
+
+  return (
+    <div className="relative w-full select-none">
+      <div
+        ref={trackRef}
+        className="relative h-2 w-full rounded-full bg-gray-200"
+        onPointerDown={handleTrackPointerDown}
+      >
+        <motion.div
+          className="absolute top-0 h-full rounded-full bg-gray-900"
+          style={{
+            left: `${leftPercent}%`,
+            width: `${Math.max(rightPercent - leftPercent, 0)}%`,
+          }}
+          layout
+          transition={{ type: "spring", stiffness: 400, damping: 40 }}
+        />
+
+        <motion.button
+          type="button"
+          className="absolute top-1/2 h-5 w-5 -translate-y-1/2 rounded-full border-2 border-gray-900 bg-white shadow focus:outline-none focus-visible:ring-2 focus-visible:ring-gray-400"
+          style={{
+            left: `calc(${leftPercent}% - 10px)`,
+          }}
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
+          onPointerDown={handleThumbPointerDown("left")}
+          role="slider"
+          aria-label="Minimum price"
+          aria-valuemin={min}
+          aria-valuemax={value[1]}
+          aria-valuenow={value[0]}
+        />
+
+        <motion.button
+          type="button"
+          className="absolute top-1/2 h-5 w-5 -translate-y-1/2 rounded-full border-2 border-gray-900 bg-white shadow focus:outline-none focus-visible:ring-2 focus-visible:ring-gray-400"
+          style={{
+            left: `calc(${rightPercent}% - 10px)`,
+          }}
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
+          onPointerDown={handleThumbPointerDown("right")}
+          role="slider"
+          aria-label="Maximum price"
+          aria-valuemin={value[0]}
+          aria-valuemax={max}
+          aria-valuenow={value[1]}
+        />
+      </div>
+    </div>
+  )
+}
+
+
+export default function GamesPage({ params }: { params: Promise<{ id: string | string[] }> }) {
+  const [priceRange, setPriceRange] = useState<[number, number]>([299, 19999])
   const [inStock, setInStock] = useState(false)
-  const [items, setItems] = useState<any>([])
+  const [items, setItems] = useState<any[]>([])
   const [error, setError] = useState<any>("")
   const [page_no, setPage_no] = useState<any>(1)
+  const [total_pages, setTotal_pages] = useState<any>(1)
   const [condition, setCondition] = useState("")
   const [taxonDetail, setTaxonsDetail] = useState<TaxonDetail | null>(null)
   const [likedItems, setLikedItems] = useState<Set<number>>(new Set())
-  const { id } = use(params)
+  const { id } = use(params) as { id: string | string[] }
 
   const topRatedProducts = [
     {
@@ -160,7 +346,22 @@ export default function GamesPage({ params }: { params: { id: string | string[] 
   useEffect(()=>{
     const fetchProducts = async () => {
       try {
-        const res = await fetch(`${SOLIDUS_ROUTES.api.products}?page=${page_no}&&perma_link=${Array.isArray(id) ? id.join("/") : id}`, {
+      const permalink = Array.isArray(id) ? id.join("/") : id
+      const params = new URLSearchParams()
+
+        if (permalink) {
+          params.set("perma_link", permalink)
+      }
+      if (priceRange.length === 2) {
+        params.set("price_range", priceRange.join(","))
+      }
+      if (inStock) {
+        params.set("in_stock", "true")
+      }
+      if (condition) {
+        params.set("condition", condition)
+      }
+      const res = await fetch(`${SOLIDUS_ROUTES.api.products}?page=${page_no}&&${params.toString()}`, {
           headers: {
             Accept: "application/json",
           }
@@ -170,7 +371,9 @@ export default function GamesPage({ params }: { params: { id: string | string[] 
           throw new Error(`Failed to fetch: ${res.status}`)
         }
         const data = await res.json()
-         setItems(prevData => ([...data, ...prevData]));
+        const productsData = Array.isArray(data?.products) ? data.products : []
+        setTotal_pages(data?.pagination?.total_pages || 1)
+        setItems((prevData: any[]) => [...productsData, ...prevData])
       } catch (err: any) {
         console.error(err)
         setError(err.message)
@@ -199,6 +402,81 @@ export default function GamesPage({ params }: { params: { id: string | string[] 
     fetchProducts()
 
   },[page_no])
+
+  const debounceTimeout = useRef<NodeJS.Timeout | null>(null)
+  const shouldSkipFilterEffect = useRef(true)
+
+
+  useEffect(()=>{
+
+    if (shouldSkipFilterEffect.current) {
+      shouldSkipFilterEffect.current = false
+      return
+    }
+
+    if (debounceTimeout.current) {
+      clearTimeout(debounceTimeout.current)
+    }
+    debounceTimeout.current = setTimeout(() => {
+      void handleFilterChange()
+    }, 600)
+
+    return () => {
+      if (debounceTimeout.current) {
+        clearTimeout(debounceTimeout.current)
+      }
+    }
+  },[priceRange, inStock, condition])
+
+
+  const handleFilterChange = async () => {
+    try {
+      const permalink = Array.isArray(id) ? id.join("/") : id
+      const params = new URLSearchParams()
+
+     
+      if (permalink) {
+        params.set("perma_link", permalink)
+      }
+      if (priceRange.length === 2) {
+        params.set("price_range", priceRange.join(","))
+      }
+      if (inStock) {
+        params.set("in_stock", "true")
+      }
+      if (condition) {
+        params.set("condition", condition)
+      }
+
+      const res = await fetch(`${SOLIDUS_ROUTES.api.search_products}?${params.toString()}`, {
+        headers: {
+          Accept: "application/json",
+        },
+      })
+
+      if (!res.ok) {
+        throw new Error(`Failed to fetch: ${res.status}`)
+      }
+
+      const data = await res.json()
+
+      if (Array.isArray(data)) {
+        setItems(data)
+      } else if (Array.isArray(data?.products)) {
+        setItems(data.products)
+      } else if (Array.isArray(data?.data)) {
+        setItems(data.data)
+      } else if (Array.isArray(data?.pagination)) {
+        setTotal_pages(data.pagination.total_pages || 1)
+        setPage_no(data.pagination.current_page || 1)
+      } else {
+        setItems([])
+      }
+    } catch (err: any) {
+      console.error(err)
+      setError(err.message || "Something went wrong while applying filters.")
+    }
+  }
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -328,13 +606,12 @@ export default function GamesPage({ params }: { params: { id: string | string[] 
                 <div className="mb-8">
                   <h4 className="font-medium mb-4 text-gray-900">Price Range</h4>
                   <div className="space-y-6">
-                    <Slider
+                    <PriceRangeSlider
                       value={priceRange}
-                      onValueChange={setPriceRange}
+                      onChange={setPriceRange}
                       max={19999}
                       min={299}
                       step={100}
-                      className="w-full"
                     />
                     <div className="flex items-center justify-between text-sm">
                       <span className="bg-gray-100 text-gray-700 px-4 py-2 rounded-lg border border-gray-200">Rs. {priceRange[0]}</span>
@@ -537,7 +814,9 @@ export default function GamesPage({ params }: { params: { id: string | string[] 
 
                     {/* Price */}
                     <div className="flex items-center gap-3 mb-6">
-                      <span className="text-2xl font-semibold text-gray-900">{product.price}</span>
+                      <span className="text-sm font-semibold text-gray-900">
+                        ₹{product.master?.default_price?.amount || product.price || 'N/A'}
+                      </span>
                       {product.originalPrice && (
                         <span className="text-sm text-gray-400 line-through">{product.originalPrice}</span>
                       )}
@@ -562,6 +841,8 @@ export default function GamesPage({ params }: { params: { id: string | string[] 
             </div>
 
             {/* Load More */}
+            {total_pages > page_no ? 
+            (
             <div className="text-center">
               <Button
                 onClick={()=>{setPage_no((prev: number)=> prev+1 )}}
@@ -572,6 +853,13 @@ export default function GamesPage({ params }: { params: { id: string | string[] 
                 Load More Games
               </Button>
             </div>
+            ):
+            (
+              <div className="text-center">
+                <p className="text-gray-600 text-sm">No more products to load</p>
+              </div>
+            )
+          }
           </div>
         </div>
       </div>

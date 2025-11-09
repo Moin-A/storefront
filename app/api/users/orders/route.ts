@@ -4,6 +4,10 @@ import { cookies } from 'next/headers';
 export async function GET(request: NextRequest) {
   try {
     const cookies = request.headers.get('cookie') || '';
+   
+
+  
+    // Fetch user orders from Solidus API
     const response = await fetch(`${process.env.API_URL}/api/orders`, {
       headers: {
         'Content-Type': 'application/json',
