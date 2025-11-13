@@ -1,21 +1,22 @@
 import { create } from 'zustand';
 import { persist, devtools } from 'zustand/middleware';
-import {Order} from '../types/solidus'
+import {Order, OrderDetails} from '../types/solidus'
 import { ShippingMethod } from '../types/solidus';
 
 type OrderState = {
   orders: Order[];
   shippingData: { shipping_methods?: Array<ShippingMethod> } ;
-  currentOrder: Order | null;
+  currentOrder: OrderDetails | null;
   hasHydrated: boolean;
   setOrders: (orders: Order[]) => void;
   addOrder: (order: Order) => void;
   updateOrder: (orderId: number, orderData: Partial<Order>) => void;
-  setCurrentOrder: (order: Order | null) => void;
+  setCurrentOrder: (order: OrderDetails | null) => void;
   clearOrders: () => void;
   setHasHydrated: (value: boolean) => void;
   fetchOrder: () => void;
   fetchShippingMethods: () => void;
+  fetchCurrentOrder: () => void;
 };
 
 export const useOrderStore = create<OrderState>()(
@@ -47,6 +48,10 @@ export const useOrderStore = create<OrderState>()(
         fetchOrder: async () => {
           const response = await fetch('/api/users/orders');
           set({ orders: await response.json() });
+        },
+        fetchCurrentOrder: async () => {
+          const response = await fetch('/api/orders/current');
+          set({ currentOrder: await response.json() });
         },
         fetchShippingMethods: async () => {
           const response = await fetch(`/api/users/orders/current/shipping_methods`);

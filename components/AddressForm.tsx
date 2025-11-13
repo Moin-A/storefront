@@ -30,6 +30,7 @@ export function AddressSection({
         <label className="flex items-center">
           <input
             type="checkbox"
+            disabled={addresses.length === 0}
             checked={useDefault}
             onChange={(e) => onDefaultChange(e.target.checked)}
             className="mr-2"

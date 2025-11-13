@@ -367,12 +367,15 @@ export default function GamesPage({ params }: { params: Promise<{ id: string | s
           }
         })
 
+
         if (!res.ok) {
           throw new Error(`Failed to fetch: ${res.status}`)
         }
+        
         const data = await res.json()
+        setTotal_pages(data?.pagination?.total_pages == 0 ? 1 : data?.pagination?.total_pages || 1)
+        setPage_no(data?.pagination?.current_page || 1)
         const productsData = Array.isArray(data?.products) ? data.products : []
-        setTotal_pages(data?.pagination?.total_pages || 1)
         setItems((prevData: any[]) => [...productsData, ...prevData])
       } catch (err: any) {
         console.error(err)
@@ -467,7 +470,7 @@ export default function GamesPage({ params }: { params: Promise<{ id: string | s
       } else if (Array.isArray(data?.data)) {
         setItems(data.data)
       } else if (Array.isArray(data?.pagination)) {
-        setTotal_pages(data.pagination.total_pages || 1)
+        setTotal_pages(data.pagination.total_pages == 0 ? 1 : 0)
         setPage_no(data.pagination.current_page || 1)
       } else {
         setItems([])
@@ -842,23 +845,20 @@ export default function GamesPage({ params }: { params: Promise<{ id: string | s
 
             {/* Load More */}
             {total_pages > page_no ? 
-            (
+            
             <div className="text-center">
-              <Button
-                onClick={()=>{setPage_no((prev: number)=> prev+1 )}}
-                variant="outline"
-                size="lg"
-                className="border-2 border-gray-300 text-gray-700 hover:bg-gray-50 hover:border-gray-400 px-8 py-4 text-base font-medium rounded-xl bg-transparent"
-              >
-                Load More Games
-              </Button>
-            </div>
-            ):
-            (
-              <div className="text-center">
-                <p className="text-gray-600 text-sm">No more products to load</p>
-              </div>
-            )
+            <Button
+              onClick={()=>{setPage_no((prev: number)=> prev+1 )}}
+              variant="outline"
+              size="lg"
+              className="border-2 border-gray-300 text-gray-700 hover:bg-gray-50 hover:border-gray-400 px-8 py-4 text-base font-medium rounded-xl bg-transparent"
+            >
+              Load More Games
+            </Button>
+          </div>:
+          <div className="text-center">
+            <p className="text-gray-600 text-sm">No more products to load</p>
+          </div>
           }
           </div>
         </div>

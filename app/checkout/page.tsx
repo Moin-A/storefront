@@ -5,7 +5,7 @@
   import { useUserStore } from '../store/userStore';
   import { useUIStore } from '../store/useUIStore';
   import { useOrderStore } from '../store/useOrderStore';
-  import { Order, Address } from '../types/solidus';
+  import { Order, Address, PaymentMethod } from '../types/solidus';
   import { Card } from '../../components/ui/card';
   import { Button } from '../../components/ui/button';
 
@@ -31,9 +31,10 @@ import DeliveryStep from '../../components/checkout/DeliveryStep';
 
   export default function CheckoutPage() {
     const { cart, fetchCart } = useCartStore();
-    const { fetchShippingMethods, shippingData } = useOrderStore(); // Initialize order store
+    const { fetchShippingMethods, shippingData, fetchCurrentOrder, currentOrder } = useOrderStore(); // Initialize order store
     const { user, isAuthenticated, fetchDefaultAddress, Defaultaddress } = useUserStore();
     const { addOrder } = useOrderStore();
+    const [paymentMethods, setPaymentMethods] = useState<PaymentMethod[]>([]);
     const addNotification = useUIStore((state: any) => state.addNotification);
     
     const [currentStep, setCurrentStep] = useState<CheckoutStep>('address');
@@ -49,13 +50,7 @@ import DeliveryStep from '../../components/checkout/DeliveryStep';
 
 
     // Payment form state
-    const [paymentData, setPaymentData] = useState({
-      cardNumber: '',
-      expiryDate: '',
-      cvv: '',
-      cardName: '',
-      saveCard: false
-    });
+    const [paymentData, setPaymentData] = useState<PaymentMethod | null>(null);
 
     // New address form state
     const [newAddress, setNewAddress] = useState({
@@ -70,30 +65,82 @@ import DeliveryStep from '../../components/checkout/DeliveryStep';
       is_default: false
     });
 
+
+    const fetchPaymentMethods = async () => {
+      const response = await fetch(SOLIDUS_ROUTES.api.payment_methods, {
+      method: 'GET',
+      headers: {
+          'Content-Type': 'application/json',
+      },
+      credentials: 'include'
+      });
+      const data = await response.json();
+      setPaymentMethods(data);
+    }
+     
+
     useEffect(() => {
       if (isAuthenticated && user) {
         fetchCart();
         fetchDefaultAddress();
         fetchShippingMethods();
+        fetchPaymentMethods();
+        console.log('Fetching current order...', currentOrder);
+        fetchCurrentOrder();
+        debugger;
         const cartState = cart?.state;
         setCurrentStep((cart?.state as CheckoutStep) || 'address');
       }
     }, [isAuthenticated, user]);
 
 
-    // Function to get default billing address ID
-    const getDefaultBillingAddressId = () => {
-      const defaultBilling = Defaultaddress.find((addr: any) => addr?.user_address?.default_billing === true);
-      return (defaultBilling as any)?.id as number | undefined;
+    // Function to get default billing address attributes
+    const getDefaultBillingAddressAttributes = () => {
+      const defaultBilling: any = Defaultaddress.find((addr: any) => addr?.user_address?.default_billing === true);
+      if (!defaultBilling) return null;
+      
+      return {
+        id: defaultBilling.id,
+        name: defaultBilling.name,
+        address1: defaultBilling.address1,
+        address2: defaultBilling.address2,
+        city: defaultBilling.city,
+        zipcode: defaultBilling.zipcode,
+        phone: defaultBilling.phone,
+        state_id: defaultBilling.state_id,
+        state_name: defaultBilling.state_name,
+        country_id: defaultBilling.country_id,
+        company: defaultBilling.company
+      };
     };
 
-    // Function to get default shipping address ID
-    const getDefaultShippingAddressId = () => {
-      const defaultShipping = Defaultaddress.find((addr: any) => addr?.user_address?.default_shipping === true);
-      return (defaultShipping as any)?.id as number | undefined;
+    // Function to get default shipping address attributes
+    const getDefaultShippingAddressAttributes = () => {
+      const defaultShipping: any = Defaultaddress.find((addr: any) => addr?.user_address?.default_shipping === true);
+      if (!defaultShipping) return null;
+      
+      return {
+        id: defaultShipping.id,
+        name: defaultShipping.name,
+        address1: defaultShipping.address1,
+        address2: defaultShipping.address2,
+        city: defaultShipping.city,
+        zipcode: defaultShipping.zipcode,
+        phone: defaultShipping.phone,
+        state_id: defaultShipping.state_id,
+        state_name: defaultShipping.state_name,
+        country_id: defaultShipping.country_id,
+        company: defaultShipping.company
+      };
     };
 
     const handleNextStep = async (optionalMethod?: any) => {
+
+      // Build payload with full address attributes
+      const payload: any = {
+        order: {}
+      };
+      debugger;
       if (currentStep === 'address') {
         // Check if using default addresses or if addresses are selected
         const hasBillingAddress = useDefaultBilling || selectedBillingAddress;
@@ -103,21 +150,58 @@ import DeliveryStep from '../../components/checkout/DeliveryStep';
           alert('Please select billing and shipping addresses');
           return;
         }
+          // Add billing address
+          if (useDefaultBilling) {
+            const billingAttrs = getDefaultBillingAddressAttributes();
+            if (billingAttrs) {
+              payload.order.bill_address_attributes = billingAttrs;
+            }
+          } else if (selectedBillingAddress) {
+            payload.order.bill_address_attributes = {
+              id: selectedBillingAddress.id,
+              name: selectedBillingAddress.name,
+              address1: selectedBillingAddress.address1,
+              address2: selectedBillingAddress.address2,
+              city: selectedBillingAddress.city,
+              zipcode: selectedBillingAddress.zipcode,
+              phone: selectedBillingAddress.phone,
+              state_id: selectedBillingAddress.state_id,
+              state_name: selectedBillingAddress.state_name,
+              country_id: selectedBillingAddress.country_id,
+              company: selectedBillingAddress.company
+            };
+          }
 
-
-
+          // Add shipping address
+          if (useDefaultShipping || useSameAddress) {
+            const shippingAttrs = useSameAddress 
+              ? getDefaultBillingAddressAttributes() 
+              : getDefaultShippingAddressAttributes();
+            if (shippingAttrs) {
+              payload.order.ship_address_attributes = shippingAttrs;
+            }
+          } else if (selectedShippingAddress) {
+            payload.order.ship_address_attributes = {
+              id: selectedShippingAddress.id,
+              name: selectedShippingAddress.name,
+              address1: selectedShippingAddress.address1,
+              address2: selectedShippingAddress.address2,
+              city: selectedShippingAddress.city,
+              zipcode: selectedShippingAddress.zipcode,
+              phone: selectedShippingAddress.phone,
+              state_id: selectedShippingAddress.state_id,
+              state_name: selectedShippingAddress.state_name,
+              country_id: selectedShippingAddress.country_id,
+              company: selectedShippingAddress.company
+            };
+          }
 
           const res = await fetch(SOLIDUS_ROUTES.api.checkout_update(cart?.number), {
           method: 'PATCH',
           headers: {
               'Content-Type': 'application/json',
           },
-          body: JSON.stringify({
-              order: {
-              "bill_address_attributes": getDefaultBillingAddressId(),
-              "ship_address_attributes": getDefaultShippingAddressId()
-            }
-          }),
+          body: JSON.stringify(payload),
           })
 
           if(!res.ok){
@@ -133,8 +217,26 @@ import DeliveryStep from '../../components/checkout/DeliveryStep';
         // Move to payment step after delivery selection
         setCurrentStep('payment');
       } else if (currentStep === 'payment') {
-        // Move to confirm step after payment
-        setCurrentStep('confirm');
+
+        payload.order.payments_attributes = [
+          {
+            payment_method_id: paymentData?.id
+          }
+        ];
+        
+        const res = await fetch(SOLIDUS_ROUTES.api.checkout_update(cart?.number), {
+          method: 'PATCH',
+          headers: {
+              'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(payload),
+        })
+        if(!res.ok){
+          addNotification('error', 'Failed to update checkout');
+          return;
+        }
+        const data = await res.json();
+        setCurrentStep((data?.state ?? 'confirm') as CheckoutStep)  
       }
     };
 
@@ -311,8 +413,8 @@ import DeliveryStep from '../../components/checkout/DeliveryStep';
                   onAddNewAddress={handleAddNewAddress}
                   onSetBillingAddresses={setBillingAddresses}
                   onSetShippingAddresses={setShippingAddresses}
-                  getDefaultBillingAddressId={getDefaultBillingAddressId}
-                  getDefaultShippingAddressId={getDefaultShippingAddressId}
+                  getDefaultBillingAddressAttributes={getDefaultBillingAddressAttributes}
+                  getDefaultShippingAddressAttributes={getDefaultShippingAddressAttributes}
                 />
               )}
 
@@ -324,6 +426,7 @@ import DeliveryStep from '../../components/checkout/DeliveryStep';
                 <PaymentStep 
                   paymentData={paymentData}
                   onPaymentDataChange={setPaymentData}
+                  paymentMethods={paymentMethods}
                 />
               )}
 
@@ -334,6 +437,7 @@ import DeliveryStep from '../../components/checkout/DeliveryStep';
                   paymentData={paymentData}
                   onPlaceOrder={handlePlaceOrder}
                   loading={loading}
+                  orderDetails={currentOrder}
                 />
               )}
 
@@ -377,8 +481,8 @@ import DeliveryStep from '../../components/checkout/DeliveryStep';
     onAddNewAddress,
     onSetBillingAddresses,
     onSetShippingAddresses,
-    getDefaultBillingAddressId,
-    getDefaultShippingAddressId
+    getDefaultBillingAddressAttributes,
+    getDefaultShippingAddressAttributes
   }: {
     billingAddresses: Address[];
     shippingAddresses: Address[];
@@ -397,8 +501,8 @@ import DeliveryStep from '../../components/checkout/DeliveryStep';
     onAddNewAddress: () => void;
     onSetBillingAddresses: (addresses: Address[]) => void;
     onSetShippingAddresses: (addresses: Address[]) => void;
-    getDefaultBillingAddressId: () => number | undefined;
-    getDefaultShippingAddressId: () => number | undefined;
+    getDefaultBillingAddressAttributes: () => any;
+    getDefaultShippingAddressAttributes: () => any;
   }) {
     const [showNewAddressForm, setShowNewAddressForm] = useState(false);
     const [showNewShippingAddressForm, setShowNewShippingAddressForm] = useState(false);
@@ -458,19 +562,19 @@ import DeliveryStep from '../../components/checkout/DeliveryStep';
           order: {}
         };
 
-        // Add billing address ID if using default billing
+        // Add billing address attributes if using default billing
         if (useDefaultBilling) {
-          const billingId = getDefaultBillingAddressId();
-          if (billingId) {
-            payload.order.bill_address_id = billingId;
+          const billingAttrs = getDefaultBillingAddressAttributes();
+          if (billingAttrs) {
+            payload.order.bill_address_attributes = billingAttrs;
           }
         }
 
-        // Add shipping address ID if using default shipping
+        // Add shipping address attributes if using default shipping
         if (useDefaultShipping) {
-          const shippingId = getDefaultShippingAddressId();
-          if (shippingId) {
-            payload.order.ship_address_id = shippingId;
+          const shippingAttrs = getDefaultShippingAddressAttributes();
+          if (shippingAttrs) {
+            payload.order.ship_address_attributes = shippingAttrs;
           }
         }
 
