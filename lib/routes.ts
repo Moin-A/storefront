@@ -56,7 +56,7 @@ export const SOLIDUS_ROUTES = {
     checkout_next: (id:string|number|undefined)=>`/api/checkouts/${id}/next`,
     checkout_update: (id:string|number|undefined)=>`/api/checkouts/${id}/update`,
     checkout_advance: '/api/checkouts/[id]/advance',
-    checkout_complete: '/api/checkouts/[id]/complete',
+    checkout_complete: (id:string|number|undefined)=>`/api/checkouts/${id}/complete`,
     
     // Addresses
     addresses: '/api/addresses',
