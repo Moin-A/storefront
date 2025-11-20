@@ -3,16 +3,18 @@
 import { Input } from '../ui/input'
 import { Label } from '../ui/label'
 
+interface CreditCardData {
+  cardNumber: string;
+  cardName: string;
+  expiryDate: string;
+  cvv: string;
+  saveCard: boolean;
+  [key: string]: unknown;
+}
+
 type CreditCardFormProps = {
-  paymentData: {
-    cardNumber: string
-    cardName: string
-    expiryDate: string
-    cvv: string
-    saveCard: boolean
-    [key: string]: unknown
-  }
-  onPaymentDataChange: (data: any) => void
+  paymentData: CreditCardData;
+  onPaymentDataChange: (data: Partial<CreditCardData>) => void;
 }
 
 export function CreditCardForm({ paymentData, onPaymentDataChange }: CreditCardFormProps) {

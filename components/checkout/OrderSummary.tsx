@@ -2,12 +2,12 @@ import { Package } from 'lucide-react';
 import { Card } from '../ui/card';
 import { Button } from '../ui/button';
 import { Separator } from '../ui/separator';
-import { LineItem } from '../../app/types/solidus';
+import { LineItem, Cart } from '../../app/types/solidus';
 
 type CheckoutStep = 'address' | 'delivery' | 'payment' | 'confirm' | 'complete';
 
 interface OrderSummaryProps {
-  cart: any;
+  cart: Cart | null;
   currentStep: CheckoutStep;
   onNextStep: () => void;
   onPlaceOrder: () => void;

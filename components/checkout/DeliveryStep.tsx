@@ -4,6 +4,31 @@ import { useCartStore } from '../../app/store/useCartStore';
 import { Card } from '../ui/card';
 import { Button } from '../ui/button';
 import { Separator } from '../ui/separator';
+import { ShippingRate, Shipment } from '../../app/types/solidus';
+
+interface ShippingMethod {
+  id: number;
+  name: string;
+  admin_name?: string;
+  shipping_rates?: ShippingRate[];
+}
+
+interface ShippingMethodOption {
+  methodId: number;
+  methodName: string;
+  adminName?: string;
+  rateId: number | string;
+  cost: string | number;
+  displayCost: string;
+  selected: boolean;
+  shipmentId: number;
+}
+
+interface ShippingData {
+  shipments?: Array<Shipment & {
+    shipping_methods?: ShippingMethod[];
+  }>;
+}
 
 interface DeliveryStepProps {
   onNext?: (selectedMethod?: string) => void;
@@ -20,23 +45,24 @@ export default function DeliveryStep({ onNext }: DeliveryStepProps) {
 
   // Extract shipping methods from shipments[0].shipping_methods[]
   // One option per method, using shipping_rates[0]
-  const getShippingMethods = () => {
-    const methods: any[] = [];
+  const getShippingMethods = (): ShippingMethodOption[] => {
+    const methods: ShippingMethodOption[] = [];
     
-    const data = shippingData as any;
+    const data = shippingData as ShippingData;
     if (data?.shipments && data.shipments[0]?.shipping_methods) {
-      data.shipments[0].shipping_methods.forEach((method: any) => {
+      const shipmentMethods = data.shipments[0].shipping_methods;
+      shipmentMethods.forEach((method: ShippingMethod) => {
         const firstRate = method.shipping_rates?.[0];
-        if (firstRate) {
+        if (firstRate && data.shipments?.[0]) {
           methods.push({
             methodId: method.id,
             methodName: method.name,
             adminName: method.admin_name,
-            rateId: firstRate.id || firstRate.shipping_rate_id,
+            rateId: firstRate.id || String(firstRate.id),
             cost: firstRate.cost,
-            displayCost: firstRate.display_cost,
+            displayCost: firstRate.display_cost || String(firstRate.cost),
             selected: firstRate.selected === true,
-            shipmentId: data.shipments[0].id
+            shipmentId: data.shipments[0].id || 0
           });
         }
       });
@@ -80,7 +106,7 @@ export default function DeliveryStep({ onNext }: DeliveryStepProps) {
             </div>
             <div className="flex justify-between text-sm">
               <span className="text-gray-600">Shipment Total</span>
-              <span className="font-medium text-gray-900">{(cart as any).display_ship_total || cart.ship_total || '₹0.00'}</span>
+              <span className="font-medium text-gray-900">{cart.ship_total || '₹0.00'}</span>
             </div>
             <Separator className="my-2" />
             <div className="flex justify-between text-lg font-semibold">

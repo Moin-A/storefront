@@ -35,7 +35,7 @@ export default function CheckoutPage() {
   const { user, isAuthenticated, fetchDefaultAddress, Defaultaddress } = useUserStore();
   const { addOrder } = useOrderStore();
   const [paymentMethods, setPaymentMethods] = useState<PaymentMethod[]>([]);
-  const addNotification = useUIStore((state: any) => state.addNotification);
+  const addNotification = useUIStore((state) => state.addNotification);
   
   const [currentStep, setCurrentStep] = useState<CheckoutStep>('address');
   const [loading, setLoading] = useState(false);

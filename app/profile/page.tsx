@@ -52,7 +52,7 @@ const mockReviews = [
 ];
 
 export default function ProfilePage() {
-  const addNotification = useUIStore((state: any) => state.addNotification);
+  const addNotification = useUIStore((state) => state.addNotification);
   const { user, isAuthenticated, fetchDefaultAddress, Defaultaddress, setDefaultAddress } = useUserStore();
   const { orders, fetchOrder } = useOrderStore();
   const [activeTab, setActiveTab] = useState<'overview' | 'orders' | 'addresses' | 'reviews'>('overview');

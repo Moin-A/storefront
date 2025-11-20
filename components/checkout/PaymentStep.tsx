@@ -4,9 +4,15 @@ import { Label } from '../ui/label'
 import { PaymentMethod } from '../../app/types/solidus'
 import { useEffect } from 'react'
 
+interface PaymentData {
+  id?: number;
+  payment_method_id?: number;
+  [key: string]: unknown;
+}
+
 interface PaymentStepProps {
-  paymentData: any;
-  onPaymentDataChange: (data: any) => void;
+  paymentData: PaymentData | null;
+  onPaymentDataChange: (data: PaymentMethod) => void;
   paymentMethods: PaymentMethod[];
 }
 
