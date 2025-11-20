@@ -192,8 +192,8 @@ export default function ProfilePage() {
 
 // Overview Tab Component
 function OverviewTab({ user, orders }: { user: User | null; orders: Order[] }) {
-  const totalOrders = orders.length;
-  const totalSpent = orders.reduce((sum, order) => {
+  const totalOrders = orders?.length;
+  const totalSpent = totalOrders && orders?.reduce((sum, order) => {
     return sum + parseFloat(order.total?.replace('$', '') || '0');
   }, 0);
 
@@ -209,7 +209,7 @@ function OverviewTab({ user, orders }: { user: User | null; orders: Order[] }) {
           </div>
           <div className="text-center p-4 bg-green-50 rounded-lg">
             <CreditCard className="h-8 w-8 text-green-600 mx-auto mb-2" />
-            <div className="text-2xl font-bold text-green-900">${totalSpent.toFixed(2)}</div>
+            <div className="text-2xl font-bold text-green-900">${totalSpent?.toFixed(2)}</div>
             <div className="text-sm text-green-700">Total Spent</div>
           </div>
           <div className="text-center p-4 bg-purple-50 rounded-lg">
