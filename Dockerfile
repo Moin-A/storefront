@@ -1,4 +1,4 @@
-# Use Node.js 22 alpine for a lightweight base image
+ # Use Node.js 22 alpine for a lightweight base image
 FROM node:22-alpine
 
 # Set working directory
@@ -13,7 +13,7 @@ RUN npm ci
 # Copy the rest of the application code
 COPY . .
 
-# Run the build (optional, as requested, though dev server doesn't use it)
+# Run the build (type errors are ignored via next.config.js)
 RUN npm run build
 
 # Expose the development port
