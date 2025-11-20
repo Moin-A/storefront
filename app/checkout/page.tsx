@@ -211,8 +211,21 @@ export default function CheckoutPage() {
         setCurrentStep((data?.state ?? 'delivery') as CheckoutStep)
      
     } else if (currentStep === 'delivery') {
-      // Move to payment step after delivery selection
-      setCurrentStep('payment');
+       const res = await fetch(SOLIDUS_ROUTES.api.checkout_next(cart?.number), {
+         method: 'PATCH',
+         headers: {
+             'Content-Type': 'application/json',
+         },
+         body: JSON.stringify(payload),
+       });
+
+       if(!res.ok){
+         addNotification('error', 'Failed to update checkout');
+         return;
+       }
+
+       const data = await res.json();
+       setCurrentStep((data?.state ?? 'payment') as CheckoutStep);
     } else if (currentStep === 'payment') {
 
       payload.order.payments_attributes = [
@@ -392,6 +405,7 @@ export default function CheckoutPage() {
                 onDefaultShippingChange={setUseDefaultShipping}
                 onNewAddressChange={setNewAddress}
                 onAddNewAddress={handleAddNewAddress}
+                Defaultaddress={Defaultaddress}
                 onSetBillingAddresses={setBillingAddresses}
                 onSetShippingAddresses={setShippingAddresses}
                 getDefaultBillingAddressAttributes={getDefaultBillingAddressAttributes}
@@ -452,6 +466,7 @@ function AddressStep({
   useSameAddress,
   useDefaultBilling,
   useDefaultShipping,
+  Defaultaddress,
   newAddress,
   onBillingAddressChange,
   onShippingAddressChange,
@@ -473,6 +488,7 @@ function AddressStep({
   useDefaultBilling: boolean;
   useDefaultShipping: boolean;
   newAddress: any;
+  Defaultaddress: any;
   onBillingAddressChange: (address: Address | null) => void;
   onShippingAddressChange: (address: Address | null) => void;
   onUseSameAddressChange: (useSame: boolean) => void;
