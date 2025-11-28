@@ -211,38 +211,11 @@ export default function GamesPage({ params }: { params: Promise<{ id: string | s
   const [total_pages, setTotal_pages] = useState<any>(1)
   const [condition, setCondition] = useState("")
   const [taxonDetail, setTaxonsDetail] = useState<TaxonDetail | null>(null)
+  const [topRatedProducts, setTopRatedProducts] = useState<any[]>([])
   const [likedItems, setLikedItems] = useState<Set<number>>(new Set())
   const { id } = use(params) as { id: string | string[] }
 
-  const topRatedProducts = [
-    {
-      id: 1,
-      name: "Demons Souls",
-      platform: "PS5 (Pre-owned)",
-      originalPrice: "Rs. 1,699",
-      salePrice: "Rs. 1,599",
-      image: "/placeholder.svg?height=60&width=60",
-      rating: 4.8,
-    },
-    {
-      id: 2,
-      name: "Cyberpunk 2077",
-      platform: "PS4 (Pre-owned)",
-      originalPrice: "Rs. 1,899",
-      salePrice: "Rs. 1,499",
-      image: "/placeholder.svg?height=60&width=60",
-      rating: 4.5,
-    },
-    {
-      id: 3,
-      name: "PS4 Controller",
-      platform: "Repair",
-      originalPrice: "",
-      salePrice: "Rs. 1,299",
-      image: "/placeholder.svg?height=60&width=60",
-      rating: 4.7,
-    },
-  ]
+
 
   const products = [
     {
@@ -401,8 +374,29 @@ export default function GamesPage({ params }: { params: Promise<{ id: string | s
       }
     }
     
+    const fetchTopRatedProducts = async () => {
+      try {
+        const permalink = Array.isArray(id) ? id.join('/') : id
+        
+        const res = await fetch(SOLIDUS_ROUTES.api.top_rated_products(permalink), {
+          headers: {
+            Accept: "application/json",
+          }
+        })
+        debugger;
+        if (!res.ok) {
+          throw new Error(`Failed to fetch: ${res.status}`)
+        }
+        const data = await res.json()
+        setTopRatedProducts(data)
+      } catch (err: any) {
+        setError(err.message)
+      }
+    }
+
     fetchTaxonsDetail()
     fetchProducts()
+    fetchTopRatedProducts()
 
   },[page_no])
 
@@ -565,13 +559,13 @@ export default function GamesPage({ params }: { params: Promise<{ id: string | s
               </div>
               <div className="p-6">
                 <div className="space-y-6">
-                  {topRatedProducts.splice(0,2).map((product) => (
+                  {topRatedProducts?.map((product) => (
                     <div
                       key={product.id}
                       className="flex items-center gap-4 p-4 bg-gray-50 rounded-xl hover:bg-gray-100 transition-colors"
                     >
                       <Image
-                        src={product.image || "/placeholder.svg"}
+                        src={product.images[0].attachment_url || "/placeholder.svg"}
                         alt={product.name}
                         width={48}
                         height={48}
@@ -581,7 +575,14 @@ export default function GamesPage({ params }: { params: Promise<{ id: string | s
                         <h4 className="font-medium text-sm text-gray-900 truncate">{product.name}</h4>
                         <p className="text-xs text-gray-500 mb-2">{product.platform}</p>
                         <div className="flex items-center gap-1 mb-2">
-                          <Star className="h-3 w-3 fill-yellow-400 text-yellow-400" />
+                          {...Array.from({ length: Math.floor(product.avg_rating) }).map((_, index) => {
+                           return (
+                              <Star key={index} className="h-3 w-3 fill-yellow-400 text-yellow-400" />
+                            )
+                          })}
+                          {product.rating % 1 >= 0.5 && (
+                            <Star className="h-3 w-3 fill-yellow-400 text-yellow-400" />
+                          )}
                           <span className="text-xs text-gray-500">{product.rating}</span>
                         </div>
                         <div className="flex items-center gap-2">
@@ -693,7 +694,7 @@ export default function GamesPage({ params }: { params: Promise<{ id: string | s
                   <div className="relative overflow-hidden">
                     <Link key={product.id} href={`/product/${product.slug}`}>
                       <Image
-                        src={product?.images[0]["url"] || "/placeholder.svg"}
+                        src={product?.images[0]["attachment_url"] || "/placeholder.svg"}
                         alt={product.name}
                         width={200}
                         height={200}

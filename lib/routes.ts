@@ -39,8 +39,9 @@ export const SOLIDUS_ROUTES = {
     taxons: '/api/taxons',
     taxon_detail: '/api/taxons/[id]',
     taxon_products: (id:string|number|undefined)=>`/api/taxons/${id}/products`,
-    category_taxons: (id:string|number)=>`/api/ ${id}/taxons`,
-    
+    category_taxons: (id:string|number)=>`/api/categories/${id}/taxons`,
+    top_rated_products: (id:string|number|undefined)=>`/api/products/top_rated?permalink=${encodeURIComponent(id || '')}`,
+
     // Cart/Orders
     current_order: '/api/orders/current',
     orders: '/api/orders',

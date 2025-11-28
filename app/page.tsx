@@ -229,6 +229,7 @@ export default function HomePage() {
 
             {/* Home & Living */}
             <div className="group cursor-pointer hover:shadow-lg transition-all duration-300 bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+            <Link href={'/products/categories/home&living'}>
               <div className="p-8 text-center">
                 <div className="w-20 h-20 bg-green-50 rounded-2xl flex items-center justify-center mx-auto mb-6 group-hover:bg-green-100 transition-colors">
                   <span className="text-3xl">🏠</span>
@@ -237,6 +238,7 @@ export default function HomePage() {
                 <p className="text-gray-600 mb-2">180+ items</p>
                 <p className="text-sm text-gray-500">Beautiful home essentials</p>
               </div>
+              </Link>
             </div>
 
             {/* Sports & Fitness */}
