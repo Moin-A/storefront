@@ -2,6 +2,7 @@ import { Order } from '../../app/types/solidus';
 import { Badge } from '../ui/badge';
 import { Button } from '../ui/button';
 import { Package, Truck } from 'lucide-react';
+import Link from 'next/link';
 
 interface OrderCardProps {
   order: Order;
@@ -39,8 +40,10 @@ export default function OrderCard({ order }: OrderCardProps) {
             {order.ship_address?.city}, {order.ship_address?.state_name}
           </div>
         </div>
-        <Button variant="outline" size="sm">
-          View Details
+        <Button variant="outline" size="sm" asChild>
+          <Link href={`/account/orders/${order.id}`}>
+            View Detail
+          </Link>
         </Button>
       </div>
     </div>

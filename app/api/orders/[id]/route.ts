@@ -10,7 +10,7 @@ export async function GET(
   const cookies = request.headers.get('cookie') || ''
   const { searchParams } = new URL(request.url)
   const query = searchParams.toString()
-  const endpoint = `${SOLIDUS_ROUTES.api.orders}/${id}`
+  const endpoint = `${SOLIDUS_ROUTES.api.orders}/${id}?order_id=${id}`
 
   const response = await api.request(endpoint, {
     method: 'GET',

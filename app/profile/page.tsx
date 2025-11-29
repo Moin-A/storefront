@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import Link from 'next/link';
 import { useUserStore } from '../store/userStore';
 import { useOrderStore } from '../store/useOrderStore';
 import { User, Order, Address } from '../types/solidus';
@@ -300,8 +301,10 @@ function OrdersTab({ orders, loading }: { orders: Order[]; loading: boolean }) {
                     {order.ship_address?.city}, {order.ship_address?.state_name}
                   </div>
                 </div>
-                <Button variant="outline" size="sm">
-                  View Details
+                <Button variant="outline" size="sm" asChild>
+                  <Link href={`/account/orders/${order.number}`}>
+                    View Detail
+                  </Link>
                 </Button>
               </div>
             </div>
