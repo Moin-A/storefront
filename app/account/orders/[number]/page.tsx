@@ -17,11 +17,16 @@ import {
   Mail,
   CheckCircle2,
   Clock,
-  XCircle
+  XCircle,
+  Star,
+  X
 } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { SOLIDUS_ROUTES } from '../../../../lib/routes';
+import { useUIStore } from '../../../store/useUIStore';
+import { Input } from '../../../../components/ui/input';
+import { Label } from '../../../../components/ui/label';
 
 export default function OrderDetailPage({ params }: { params: Promise<{ number: string }> }) {
   const router = useRouter();
@@ -29,6 +34,12 @@ export default function OrderDetailPage({ params }: { params: Promise<{ number: 
   const [order, setOrder] = useState<OrderDetails | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [showReviewModal, setShowReviewModal] = useState(false);
+  const [selectedProduct, setSelectedProduct] = useState<{ id: number; name: string } | null>(null);
+  const [rating, setRating] = useState<number>(0);
+  const [comment, setComment] = useState<string>('');
+  const [submittingReview, setSubmittingReview] = useState(false);
+  const addNotification = useUIStore((state) => state.addNotification);
 
   useEffect(() => {
     const fetchOrderDetails = async () => {
@@ -123,6 +134,56 @@ export default function OrderDetailPage({ params }: { params: Promise<{ number: 
     }
   };
 
+  const handleReviewClick = () => {
+    setShowReviewModal(true);
+    // If there's only one product, auto-select it
+    if (order?.line_items && order.line_items.length === 1) {
+      const item = order.line_items[0];
+      setSelectedProduct({
+        id: item.variant?.product?.id || 0,
+        name: item.variant?.name || item.variant?.product?.name || 'Product'
+      });
+    }
+  };
+
+  const handleSubmitReview = async () => {
+    if (!selectedProduct || rating === 0 || !comment.trim()) {
+      addNotification('error', 'Please select a product, provide a rating, and write a comment');
+      return;
+    }
+
+    setSubmittingReview(true);
+    try {
+      const response = await fetch('/api/users/reviews', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        credentials: 'include',
+        body: JSON.stringify({
+          productId: selectedProduct.id,
+          rating: rating,
+          comment: comment.trim(),
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to submit review');
+      }
+
+      addNotification('success', 'Review submitted successfully!');
+      setShowReviewModal(false);
+      setSelectedProduct(null);
+      setRating(0);
+      setComment('');
+    } catch (err) {
+      console.error('Error submitting review:', err);
+      addNotification('error', 'Failed to submit review. Please try again.');
+    } finally {
+      setSubmittingReview(false);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="container mx-auto px-4 py-8">
@@ -141,13 +202,21 @@ export default function OrderDetailPage({ params }: { params: Promise<{ number: 
               <h1 className="text-3xl font-bold text-gray-900">Order Details</h1>
               <p className="text-gray-600 mt-1">Order #{order.number}</p>
             </div>
-            <Badge 
-              variant={getStateBadgeVariant(order.state)} 
-              className="text-sm px-3 py-1"
-            >
-              {getStateIcon(order.state)}
-              <span className="ml-2 capitalize">{order.state}</span>
-            </Badge>
+            <div className="flex items-center gap-3">
+              <Badge 
+                variant={getStateBadgeVariant(order.state)} 
+                className="text-sm px-3 py-1"
+              >
+                {getStateIcon(order.state)}
+                <span className="ml-2 capitalize">{order.state}</span>
+              </Badge>
+              {order.state?.toLowerCase() === 'complete' && (
+                <Button onClick={handleReviewClick} size="sm" className="text-sm px-3 py-1 h-auto">
+                  <Star className="h-4 w-4 mr-2" />
+                  Review Order
+                </Button>
+              )}
+            </div>
           </div>
         </div>
 
@@ -165,8 +234,10 @@ export default function OrderDetailPage({ params }: { params: Promise<{ number: 
               <CardContent>
                 <div className="space-y-4">
                   {order.line_items?.map((item) => {
-                    debugger;
-                    const productImage = item.product?.images?.[0]?.attachment_url || '/placeholder.svg';
+                    const productImage = item.variant?.images?.[0]?.url || 
+                                       item.variant?.product?.images?.[0]?.attachment_url ||
+                                       item.variant?.product?.images?.[0]?.url ||
+                                       '/placeholder.svg';
                     const productName = item.variant?.name || item.variant?.product?.name || 'Product';
                     const productSlug = item.variant?.product?.slug;
 
@@ -438,6 +509,135 @@ export default function OrderDetailPage({ params }: { params: Promise<{ number: 
           </div>
         </div>
       </div>
+
+      {/* Review Modal */}
+      {showReviewModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+          <Card className="w-full max-w-2xl mx-4 max-h-[90vh] overflow-y-auto">
+            <CardHeader>
+              <div className="flex items-center justify-between">
+                <CardTitle>Write a Review</CardTitle>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => {
+                    setShowReviewModal(false);
+                    setSelectedProduct(null);
+                    setRating(0);
+                    setComment('');
+                  }}
+                >
+                  <X className="h-4 w-4" />
+                </Button>
+              </div>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              {/* Product Selection */}
+              {order.line_items && order.line_items.length > 1 && (
+                <div>
+                  <Label htmlFor="product-select" className="mb-2 block">
+                    Select Product to Review
+                  </Label>
+                  <select
+                    id="product-select"
+                    value={selectedProduct?.id || ''}
+                    onChange={(e) => {
+                      const item = order.line_items?.find(
+                        li => li.variant?.product?.id?.toString() === e.target.value
+                      );
+                      if (item) {
+                        setSelectedProduct({
+                          id: item.variant?.product?.id || 0,
+                          name: item.variant?.name || item.variant?.product?.name || 'Product'
+                        });
+                      }
+                    }}
+                    className="w-full h-9 rounded-md border border-gray-300 bg-transparent px-3 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  >
+                    <option value="">Choose a product...</option>
+                    {order.line_items.map((item) => (
+                      <option
+                        key={item.id}
+                        value={item.variant?.product?.id || ''}
+                      >
+                        {item.variant?.name || item.variant?.product?.name || 'Product'}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              )}
+
+              {/* Rating */}
+              <div>
+                <Label className="mb-2 block">Rating</Label>
+                <div className="flex gap-2">
+                  {[1, 2, 3, 4, 5].map((star) => (
+                    <button
+                      key={star}
+                      type="button"
+                      onClick={() => setRating(star)}
+                      className="focus:outline-none transition-transform hover:scale-110"
+                    >
+                      <Star
+                        className={`h-8 w-8 ${
+                          star <= rating
+                            ? 'text-yellow-400 fill-yellow-400'
+                            : 'text-gray-300'
+                        }`}
+                      />
+                    </button>
+                  ))}
+                </div>
+                {rating > 0 && (
+                  <p className="text-sm text-gray-600 mt-2">
+                    {rating} out of 5 stars
+                  </p>
+                )}
+              </div>
+
+              {/* Comment */}
+              <div>
+                <Label htmlFor="review-comment" className="mb-2 block">
+                  Comment
+                </Label>
+                <textarea
+                  id="review-comment"
+                  value={comment}
+                  onChange={(e) => setComment(e.target.value)}
+                  placeholder="Share your experience with this product..."
+                  rows={6}
+                  className="w-full rounded-md border border-gray-300 bg-transparent px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
+                />
+                <p className="text-xs text-gray-500 mt-1">
+                  {comment.length} characters
+                </p>
+              </div>
+
+              {/* Submit Button */}
+              <div className="flex gap-3 justify-end">
+                <Button
+                  variant="outline"
+                  onClick={() => {
+                    setShowReviewModal(false);
+                    setSelectedProduct(null);
+                    setRating(0);
+                    setComment('');
+                  }}
+                  disabled={submittingReview}
+                >
+                  Cancel
+                </Button>
+                <Button
+                  onClick={handleSubmitReview}
+                  disabled={submittingReview || !selectedProduct || rating === 0 || !comment.trim()}
+                >
+                  {submittingReview ? 'Submitting...' : 'Submit Review'}
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      )}
     </div>
   );
 }
