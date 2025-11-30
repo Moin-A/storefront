@@ -266,6 +266,7 @@ export default function OrderDetailPage({ params }: { params: Promise<{ number: 
                             alt={productImageAlt}
                             fill
                             className="object-cover"
+                            unoptimized={productImage.includes('cloudfront.net')}
                           />
                         </div>
                         <div className="flex-1 min-w-0">
@@ -578,6 +579,7 @@ export default function OrderDetailPage({ params }: { params: Promise<{ number: 
                                     width={24}
                                     height={24}
                                     className="object-cover rounded flex-shrink-0"
+                                    unoptimized={imageUrl.includes('cloudfront.net')}
                                   />
                                   <span className="truncate">{selectedProduct.name}</span>
                                 </>
@@ -616,6 +618,7 @@ export default function OrderDetailPage({ params }: { params: Promise<{ number: 
                                 width={32}
                                 height={32}
                                 className="object-cover rounded flex-shrink-0"
+                                unoptimized={imageUrl.includes('cloudfront.net')}
                               />
                               <span className="truncate">{productName}</span>
                             </button>

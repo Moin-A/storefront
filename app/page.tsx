@@ -116,6 +116,7 @@ export default function HomePage() {
                   height={500}
                   className="w-full h-auto object-contain rounded-2xl shadow-sm"
                   priority
+                  unoptimized={store?.hero_image_url?.includes('cloudfront.net') || false}
                 />
               }
             </div>

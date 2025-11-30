@@ -263,6 +263,7 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
                 )}
                 priority
                 onLoadingComplete={() => setLoading(false)}
+                unoptimized={selectedVariant?.images?.[selectedImage]?.url?.includes('cloudfront.net') || false}
               />
               <div className="absolute top-4 right-4 flex gap-2">
                 <Button size="icon" variant="secondary" className="rounded-full bg-white/90 backdrop-blur-sm shadow-sm border border-gray-200">
@@ -292,6 +293,7 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
                     width={80}
                     height={80}
                     className="w-full h-full object-cover"
+                    unoptimized={image?.url?.includes('cloudfront.net') || false}
                   />
                 </button>
               ))}

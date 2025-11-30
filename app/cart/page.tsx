@@ -190,6 +190,7 @@ export default function CartPage() {
                                                             alt={item.variant?.product?.name || 'Product'}
                                                             fill
                                                             className="object-cover"
+                                                            unoptimized={imageUrl.includes('cloudfront.net')}
                                                         />
                                                     </div>
                                                 </div>

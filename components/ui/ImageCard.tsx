@@ -30,6 +30,7 @@ export  function ImageCard({ images = [], name }) {
                 alt={name || "Product image"}
                 fill
                 className="object-cover"
+                unoptimized={img.url?.includes('cloudfront.net') || false}
               />
             </div>
           ))

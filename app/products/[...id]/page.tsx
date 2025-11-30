@@ -570,6 +570,7 @@ export default function GamesPage({ params }: { params: Promise<{ id: string | s
                         width={48}
                         height={48}
                         className="rounded-lg bg-white shadow-sm"
+                        unoptimized={product.images[0]?.attachment_url?.includes('cloudfront.net') || false}
                       />
                       <div className="flex-1 min-w-0">
                         <h4 className="font-medium text-sm text-gray-900 truncate">{product.name}</h4>
@@ -699,6 +700,7 @@ export default function GamesPage({ params }: { params: Promise<{ id: string | s
                         width={200}
                         height={200}
                         className="w-full h-56 object-cover group-hover:scale-105 transition-transform duration-300"
+                        unoptimized={product?.images[0]?.["attachment_url"]?.includes('cloudfront.net') || false}
                       />
                     </Link>  
 
