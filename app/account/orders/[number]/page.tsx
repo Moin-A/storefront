@@ -3,7 +3,7 @@
 import { useState, useEffect, use } from 'react';
 import { useRouter } from 'next/navigation';
 import { OrderDetails } from '../../../types/solidus';
-import { Card, CardContent, CardHeader, CardTitle } from '../../../../components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle, ProductCardImage } from '../../../../components/ui/card';
 import { Button } from '../../../../components/ui/button';
 import { Badge } from '../../../../components/ui/badge';
 import { Separator } from '../../../../components/ui/separator';
@@ -19,7 +19,8 @@ import {
   Clock,
   XCircle,
   Star,
-  X
+  X,
+  ChevronDown
 } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -39,6 +40,7 @@ export default function OrderDetailPage({ params }: { params: Promise<{ number: 
   const [rating, setRating] = useState<number>(0);
   const [comment, setComment] = useState<string>('');
   const [submittingReview, setSubmittingReview] = useState(false);
+  const [showProductDropdown, setShowProductDropdown] = useState(false);
   const addNotification = useUIStore((state) => state.addNotification);
 
   useEffect(() => {
@@ -73,6 +75,23 @@ export default function OrderDetailPage({ params }: { params: Promise<{ number: 
       fetchOrderDetails();
     }
   }, [number]);
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      const target = event.target as HTMLElement;
+      if (showProductDropdown && !target.closest('.product-dropdown-container')) {
+        setShowProductDropdown(false);
+      }
+    };
+
+    if (showProductDropdown) {
+      document.addEventListener('mousedown', handleClickOutside);
+      return () => {
+        document.removeEventListener('mousedown', handleClickOutside);
+      };
+    }
+  }, [showProductDropdown]);
 
   if (loading) {
     return (
@@ -234,19 +253,17 @@ export default function OrderDetailPage({ params }: { params: Promise<{ number: 
               <CardContent>
                 <div className="space-y-4">
                   {order.line_items?.map((item) => {
-                    const productImage = item.variant?.images?.[0]?.url || 
-                                       item.variant?.product?.images?.[0]?.attachment_url ||
-                                       item.variant?.product?.images?.[0]?.url ||
-                                       '/placeholder.svg';
-                    const productName = item.variant?.name || item.variant?.product?.name || 'Product';
-                    const productSlug = item.variant?.product?.slug;
+                    const productImage = item?.product?.images?.[0]?.attachment_url || '/placeholder.svg';
+                    const productImageAlt = item?.product?.images?.[0]?.name || item?.product?.name || 'Product';
+                    const productName = item?.product?.name || item.variant?.name || 'Product';
+                    const productSlug = item?.product?.slug;
 
                     return (
                       <div key={item.id} className="flex gap-4 pb-4 border-b border-gray-200 last:border-0">
                         <div className="relative w-20 h-20 bg-gray-100 rounded-lg overflow-hidden flex-shrink-0">
                           <Image
                             src={productImage}
-                            alt={productName}
+                            alt={productImageAlt}
                             fill
                             className="object-cover"
                           />
@@ -534,36 +551,79 @@ export default function OrderDetailPage({ params }: { params: Promise<{ number: 
             <CardContent className="space-y-6">
               {/* Product Selection */}
               {order.line_items && order.line_items.length > 1 && (
-                <div>
+                <div className="product-dropdown-container">
                   <Label htmlFor="product-select" className="mb-2 block">
                     Select Product to Review
                   </Label>
-                  <select
-                    id="product-select"
-                    value={selectedProduct?.id || ''}
-                    onChange={(e) => {
-                      const item = order.line_items?.find(
-                        li => li.variant?.product?.id?.toString() === e.target.value
-                      );
-                      if (item) {
-                        setSelectedProduct({
-                          id: item.variant?.product?.id || 0,
-                          name: item.variant?.name || item.variant?.product?.name || 'Product'
-                        });
-                      }
-                    }}
-                    className="w-full h-9 rounded-md border border-gray-300 bg-transparent px-3 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  >
-                    <option value="">Choose a product...</option>
-                    {order.line_items.map((item) => (
-                      <option
-                        key={item.id}
-                        value={item.variant?.product?.id || ''}
-                      >
-                        {item.variant?.name || item.variant?.product?.name || 'Product'}
-                      </option>
-                    ))}
-                  </select>
+                  <div className="relative">
+                    <button
+                      type="button"
+                      onClick={() => setShowProductDropdown(!showProductDropdown)}
+                      className="w-full h-10 rounded-md border border-gray-300 bg-white px-3 py-2 text-sm text-left flex items-center justify-between focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    >
+                      <div className="flex items-center gap-2 min-w-0 flex-1">
+                        {selectedProduct ? (
+                          <>
+                            {(() => {
+                              const item = order.line_items?.find(
+                                li => (li.product?.id || li.variant?.product?.id) === selectedProduct.id
+                              );
+                              const imageUrl = item?.product?.images?.[0]?.attachment_url || '/placeholder.svg';
+                              const imageAlt = item?.product?.images?.[0]?.name || selectedProduct.name;
+                              return (
+                                <>
+                                  <Image
+                                    src={imageUrl}
+                                    alt={imageAlt}
+                                    width={24}
+                                    height={24}
+                                    className="object-cover rounded flex-shrink-0"
+                                  />
+                                  <span className="truncate">{selectedProduct.name}</span>
+                                </>
+                              );
+                            })()}
+                          </>
+                        ) : (
+                          <span className="text-gray-500">Choose a product...</span>
+                        )}
+                      </div>
+                      <ChevronDown className={`h-4 w-4 transition-transform flex-shrink-0 ${showProductDropdown ? 'rotate-180' : ''}`} />
+                    </button>
+                    {showProductDropdown && (
+                      <div className="absolute z-50 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-auto">
+                        {order.line_items.map((item) => {
+                          const productId = item.product?.id || 0;
+                          const productName = item.product?.name || item.variant?.name || 'Product';
+                          const imageUrl = item?.product?.images?.[0]?.attachment_url || '/placeholder.svg';
+                          const imageAlt = item?.product?.images?.[0]?.name || productName;
+                          return (
+                            <button
+                              key={item.id}
+                              type="button"
+                              onClick={() => {
+                                setSelectedProduct({
+                                  id: productId,
+                                  name: productName
+                                });
+                                setShowProductDropdown(false);
+                              }}
+                              className="w-full px-3 py-2 text-left hover:bg-gray-100 flex items-center gap-2 text-sm"
+                            >
+                              <Image
+                                src={imageUrl}
+                                alt={imageAlt}
+                                width={32}
+                                height={32}
+                                className="object-cover rounded flex-shrink-0"
+                              />
+                              <span className="truncate">{productName}</span>
+                            </button>
+                          );
+                        })}
+                      </div>
+                    )}
+                  </div>
                 </div>
               )}
 

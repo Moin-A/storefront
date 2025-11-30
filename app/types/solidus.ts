@@ -34,6 +34,26 @@ export type LineItem = {
   quantity?: number;
   price?: string;
   total?: string;
+  images?: Array<{
+    id?: number;
+    alt?: string;
+    attachment_url?: string;
+    url?: string;
+    name?: string;
+  }>;
+  product?: {
+    id?: number;
+    name?: string;
+    slug?: string;
+    description?: string;
+    images?: Array<{
+      id?: number;
+      alt?: string;
+      attachment_url?: string;
+      url?: string;
+      name?: string;
+    }>;
+  };
   variant?: {
     id?: number;
     sku?: string;
