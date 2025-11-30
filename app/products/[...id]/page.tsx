@@ -213,41 +213,7 @@ export default function GamesPage({ params }: { params: Promise<{ id: string | s
   const [taxonDetail, setTaxonsDetail] = useState<TaxonDetail | null>(null)
   const [topRatedProducts, setTopRatedProducts] = useState<any[]>([])
   const [likedItems, setLikedItems] = useState<Set<number>>(new Set())
-  const [imageLoadingStates, setImageLoadingStates] = useState<Set<string | number>>(new Set())
-  const [failedImages, setFailedImages] = useState<Set<string | number>>(new Set())
-  const [isProductsLoading, setIsProductsLoading] = useState<boolean>(true)
   const { id } = use(params) as { id: string | string[] }
-
-  // Initialize loading state only for NEW items (not already loaded)
-  useEffect(() => {
-    if (items && items.length > 0) {
-      setImageLoadingStates(prev => {
-        const newSet = new Set(prev);
-        items.forEach((product: any) => {
-          if (product.id && !prev.has(product.id) && !failedImages.has(product.id)) {
-            newSet.add(product.id);
-          }
-        });
-        return newSet;
-      });
-    }
-  }, [items, failedImages]);
-
-  // Initialize loading state for top rated products (only new ones)
-  useEffect(() => {
-    if (topRatedProducts && topRatedProducts.length > 0) {
-      setImageLoadingStates(prev => {
-        const newSet = new Set(prev);
-        topRatedProducts.forEach((product: any) => {
-          const key = `top-rated-${product.id}`;
-          if (product.id && !prev.has(key) && !failedImages.has(key)) {
-            newSet.add(key);
-          }
-        });
-        return newSet;
-      });
-    }
-  }, [topRatedProducts, failedImages]);
 
 
 
@@ -353,7 +319,6 @@ export default function GamesPage({ params }: { params: Promise<{ id: string | s
   useEffect(()=>{
     const fetchProducts = async () => {
       try {
-        setIsProductsLoading(true)
         const permalink = Array.isArray(id) ? id.join("/") : id
         const params = new URLSearchParams()
 
@@ -388,8 +353,6 @@ export default function GamesPage({ params }: { params: Promise<{ id: string | s
       } catch (err: any) {
         console.error(err)
         setError(err.message)
-      } finally {
-        setIsProductsLoading(false)
       }
     }
     const fetchTaxonsDetail = async () => {
@@ -465,7 +428,6 @@ export default function GamesPage({ params }: { params: Promise<{ id: string | s
 
   const handleFilterChange = async () => {
     try {
-      setIsProductsLoading(true)
       const permalink = Array.isArray(id) ? id.join("/") : id
       const params = new URLSearchParams()
 
@@ -510,8 +472,6 @@ export default function GamesPage({ params }: { params: Promise<{ id: string | s
     } catch (err: any) {
       console.error(err)
       setError(err.message || "Something went wrong while applying filters.")
-    } finally {
-      setIsProductsLoading(false)
     }
   }
 
@@ -599,54 +559,18 @@ export default function GamesPage({ params }: { params: Promise<{ id: string | s
               </div>
               <div className="p-6">
                 <div className="space-y-6">
-                  {topRatedProducts?.map((product) => {
-                    const topRatedKey = `top-rated-${product.id}`;
-                    const isTopRatedImageLoading = imageLoadingStates.has(topRatedKey);
-                    return (
+                  {topRatedProducts?.map((product) => (
                     <div
                       key={product.id}
                       className="flex items-center gap-4 p-4 bg-gray-50 rounded-xl hover:bg-gray-100 transition-colors"
                     >
-                      <div className="relative w-12 h-12 flex-shrink-0">
-                        {isTopRatedImageLoading && (
-                          <div className="absolute inset-0 bg-gradient-to-r from-gray-200 via-gray-300 to-gray-200 animate-pulse rounded-lg z-10" />
-                        )}
-                        {failedImages.has(topRatedKey) ? (
-                          <div className="w-12 h-12 bg-gray-200 rounded-lg flex items-center justify-center">
-                            <span className="text-gray-400 text-xs">—</span>
-                          </div>
-                        ) : (
-                          <Image
-                            src={product.images[0]?.attachment_url || "/placeholder.svg"}
-                            alt={product.name}
-                            width={48}
-                            height={48}
-                            className={`rounded-lg bg-white shadow-sm transition-opacity duration-300 ${
-                              isTopRatedImageLoading ? 'opacity-0' : 'opacity-100'
-                            }`}
-                            onLoadingComplete={() => {
-                              setImageLoadingStates(prev => {
-                                const newSet = new Set(prev);
-                                newSet.delete(topRatedKey);
-                                return newSet;
-                              });
-                            }}
-                            onError={() => {
-                              setImageLoadingStates(prev => {
-                                const newSet = new Set(prev);
-                                newSet.delete(topRatedKey);
-                                return newSet;
-                              });
-                              setFailedImages(prev => {
-                                const newSet = new Set(prev);
-                                newSet.add(topRatedKey);
-                                return newSet;
-                              });
-                            }}
-                            unoptimized={false}
-                          />
-                        )}
-                      </div>
+                      <Image
+                        src={product.images[0]?.attachment_url || "/placeholder.svg"}
+                        alt={product.name}
+                        width={48}
+                        height={48}
+                        className="rounded-lg bg-white shadow-sm"
+                      />
                       <div className="flex-1 min-w-0">
                         <h4 className="font-medium text-sm text-gray-900 truncate">{product.name}</h4>
                         <p className="text-xs text-gray-500 mb-2">{product.platform}</p>
@@ -669,8 +593,7 @@ export default function GamesPage({ params }: { params: Promise<{ id: string | s
                         </div>
                       </div>
                     </div>
-                    );
-                  })}
+                  ))}
                 </div>
               </div>
             </div>
@@ -765,72 +688,18 @@ export default function GamesPage({ params }: { params: Promise<{ id: string | s
             </div>
 
             {/* Products Grid */}
-            {isProductsLoading ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">
-                {[...Array(6)].map((_, index) => (
-                  <div key={index} className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-                    {/* Image Skeleton */}
-                    <div className="w-full h-56 bg-gradient-to-r from-gray-200 via-gray-300 to-gray-200 animate-pulse" />
-                    {/* Content Skeleton */}
-                    <div className="p-6 space-y-4">
-                      <div className="h-4 bg-gradient-to-r from-gray-200 via-gray-300 to-gray-200 animate-pulse rounded w-3/4" />
-                      <div className="h-3 bg-gradient-to-r from-gray-200 via-gray-300 to-gray-200 animate-pulse rounded w-1/2" />
-                      <div className="flex items-center gap-2">
-                        <div className="h-4 bg-gradient-to-r from-gray-200 via-gray-300 to-gray-200 animate-pulse rounded w-16" />
-                        <div className="h-4 bg-gradient-to-r from-gray-200 via-gray-300 to-gray-200 animate-pulse rounded w-20" />
-                      </div>
-                      <div className="h-10 bg-gradient-to-r from-gray-200 via-gray-300 to-gray-200 animate-pulse rounded" />
-                    </div>
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">
-                {items?.map((product: any) => {
-                const isImageLoading = imageLoadingStates.has(product.id);
-                return (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">
+              {items?.map((product: any) => (
                 <div key={product.id} className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden group hover:shadow-lg transition-all duration-300">
                   <div className="relative overflow-hidden">
-                    {/* Loading Skeleton */}
-                    {isImageLoading && (
-                      <div className="absolute inset-0 w-full h-56 bg-gradient-to-r from-gray-200 via-gray-300 to-gray-200 animate-pulse z-10" />
-                    )}
                     <Link key={product.id} href={`/product/${product.slug}`}>
-                      {failedImages.has(product.id) ? (
-                        <div className="w-full h-56 bg-gray-200 flex items-center justify-center">
-                          <span className="text-gray-400 text-sm">Image unavailable</span>
-                        </div>
-                      ) : (
-                        <Image
-                          src={product?.images[0]?.["attachment_url"] || "/placeholder.svg"}
-                          alt={product.name}
-                          width={200}
-                          height={200}
-                          className={`w-full h-56 object-cover group-hover:scale-105 transition-all duration-300 ${
-                            isImageLoading ? 'opacity-0' : 'opacity-100'
-                          }`}
-                          onLoadingComplete={() => {
-                            setImageLoadingStates(prev => {
-                              const newSet = new Set(prev);
-                              newSet.delete(product.id);
-                              return newSet;
-                            });
-                          }}
-                          onError={() => {
-                            setImageLoadingStates(prev => {
-                              const newSet = new Set(prev);
-                              newSet.delete(product.id);
-                              return newSet;
-                            });
-                            setFailedImages(prev => {
-                              const newSet = new Set(prev);
-                              newSet.add(product.id);
-                              return newSet;
-                            });
-                          }}
-                          unoptimized={false}
-                        />
-                      )}
+                      <Image
+                        src={product?.images[0]?.["attachment_url"] || "/placeholder.svg"}
+                        alt={product.name}
+                        width={200}
+                        height={200}
+                        className="w-full h-56 object-cover group-hover:scale-105 transition-transform duration-300"
+                      />
                     </Link>  
 
                     {/* Animated Wishlist Button */}
@@ -972,10 +841,8 @@ export default function GamesPage({ params }: { params: Promise<{ id: string | s
                     </div>
                   </div>
                 </div>
-                );
-              })}
-              </div>
-            )}
+              ))}
+            </div>
 
             {/* Load More */}
             {total_pages > page_no ? 
