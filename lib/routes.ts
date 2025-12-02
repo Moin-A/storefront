@@ -39,13 +39,14 @@ export const SOLIDUS_ROUTES = {
     taxons: '/api/taxons',
     taxon_detail: '/api/taxons/[id]',
     taxon_products: (id:string|number|undefined)=>`/api/taxons/${id}/products`,
-    category_taxons: (id:string|number)=>`/api/categories/${id}/taxons`,
+    category_taxons: (permalink:string|number)=>`/api/${permalink}/taxons`,
     top_rated_products: (id:string|number|undefined)=>`/api/products/top_rated?permalink=${encodeURIComponent(id || '')}`,
 
     // Cart/Orders
     current_order: '/api/orders/current',
     orders: '/api/orders',
     order_detail: '/api/orders/[id]',
+    review_product: (id:string|number)=>`/api/orders/${id}/review_product`,
     
     // Line Items (Cart Items)
     line_items: '/api/orders/current/line_items',

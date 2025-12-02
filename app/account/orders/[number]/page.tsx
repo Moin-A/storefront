@@ -36,7 +36,7 @@ export default function OrderDetailPage({ params }: { params: Promise<{ number: 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [showReviewModal, setShowReviewModal] = useState(false);
-  const [selectedProduct, setSelectedProduct] = useState<{ id: number; name: string } | null>(null);
+  const [selectedProduct, setSelectedProduct] = useState<{ line_item_id: number | undefined; name: string } | null>(null);
   const [rating, setRating] = useState<number>(0);
   const [comment, setComment] = useState<string>('');
   const [submittingReview, setSubmittingReview] = useState(false);
@@ -159,7 +159,7 @@ export default function OrderDetailPage({ params }: { params: Promise<{ number: 
     if (order?.line_items && order.line_items.length === 1) {
       const item = order.line_items[0];
       setSelectedProduct({
-        id: item.variant?.product?.id || 0,
+        line_item_id: item.id,
         name: item.variant?.name || item.variant?.product?.name || 'Product'
       });
     }
@@ -173,14 +173,14 @@ export default function OrderDetailPage({ params }: { params: Promise<{ number: 
 
     setSubmittingReview(true);
     try {
-      const response = await fetch('/api/users/reviews', {
+      const response = await fetch(`/api/orders/${order.id}/review_product`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         credentials: 'include',
         body: JSON.stringify({
-          productId: selectedProduct.id,
+          lineItemId: selectedProduct.line_item_id,
           rating: rating,
           comment: comment.trim(),
         }),
@@ -594,8 +594,7 @@ export default function OrderDetailPage({ params }: { params: Promise<{ number: 
                     </button>
                     {showProductDropdown && (
                       <div className="absolute z-50 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-auto">
-                        {order.line_items.map((item) => {
-                          const productId = item.product?.id || 0;
+                        {order.line_items.map((item) => {                  
                           const productName = item.product?.name || item.variant?.name || 'Product';
                           const imageUrl = item?.product?.images?.[0]?.attachment_url || '/placeholder.svg';
                           const imageAlt = item?.product?.images?.[0]?.name || productName;
@@ -603,9 +602,9 @@ export default function OrderDetailPage({ params }: { params: Promise<{ number: 
                             <button
                               key={item.id}
                               type="button"
-                              onClick={() => {
+                              onClick={() => {                           
                                 setSelectedProduct({
-                                  id: productId,
+                                  line_item_id: item?.id,
                                   name: productName
                                 });
                                 setShowProductDropdown(false);

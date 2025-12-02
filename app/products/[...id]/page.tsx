@@ -333,7 +333,7 @@ export default function GamesPage({ params }: { params: Promise<{ id: string | s
         }
         if (condition) {
           params.set("condition", condition)
-        }
+        }       
         const res = await fetch(`${SOLIDUS_ROUTES.api.products}?page=${page_no}&&${params.toString()}`, {
           headers: {
             Accept: "application/json",
@@ -382,8 +382,7 @@ export default function GamesPage({ params }: { params: Promise<{ id: string | s
           headers: {
             Accept: "application/json",
           }
-        })
-        debugger;
+        })        
         if (!res.ok) {
           throw new Error(`Failed to fetch: ${res.status}`)
         }
@@ -427,6 +426,7 @@ export default function GamesPage({ params }: { params: Promise<{ id: string | s
 
 
   const handleFilterChange = async () => {
+     debugger;
     try {
       const permalink = Array.isArray(id) ? id.join("/") : id
       const params = new URLSearchParams()
@@ -444,7 +444,7 @@ export default function GamesPage({ params }: { params: Promise<{ id: string | s
       if (condition) {
         params.set("condition", condition)
       }
-
+     
       const res = await fetch(`${SOLIDUS_ROUTES.api.search_products}?${params.toString()}`, {
         headers: {
           Accept: "application/json",
@@ -533,17 +533,48 @@ export default function GamesPage({ params }: { params: Promise<{ id: string | s
       {/* Hero Section */}
       <section className="bg-white py-16">
         <div className="container mx-auto px-4">
-          <div className="text-center max-w-4xl mx-auto">
-            <h1 className="text-5xl md:text-6xl font-light text-gray-900 mb-6">
-              {taxonDetail?.name || 'Explore Our Exclusive PS4 Games Collection'}
-            </h1>
-            <p className="text-xl text-gray-600 mb-8 max-w-4xl mx-auto">
-              {taxonDetail?.description || taxonDetail?.description || 'Explore the collection of premium products'}
-            </p>
-            <div className="flex items-center justify-center gap-6 text-sm text-gray-500">
-              <span>Showing 1 - 12 of 1,135 results</span>
-              <Badge className="bg-gray-100 text-gray-700 border border-gray-200">Free EMI Available</Badge>
+          <div className="flex flex-col md:flex-row items-center gap-8 md:gap-12 max-w-7xl mx-auto">
+            {/* Text Content - Left side on desktop, top on mobile */}
+            <div className="flex-1 text-center md:text-left">
+              <h1 className="text-5xl md:text-6xl font-light text-gray-900 mb-6">
+                {taxonDetail?.name || 'Explore Our Exclusive PS4 Games Collection'}
+              </h1>
+              <p className="text-xl text-gray-600 mb-8 max-w-4xl mx-auto md:mx-0">
+                {taxonDetail?.description || taxonDetail?.description || 'Explore the collection of premium products'}
+              </p>
+              {/* Image on mobile - below description */}
+              {taxonDetail?.attachment_url && (
+                <div className="md:hidden mb-8">
+                  <div className="relative w-full max-w-md mx-auto aspect-video rounded-2xl overflow-hidden shadow-lg">
+                    <Image
+                      src={taxonDetail.attachment_url}
+                      alt={taxonDetail.name || 'Category image'}
+                      fill
+                      className="object-cover"
+                      unoptimized={taxonDetail.attachment_url?.includes('cloudfront.net') || false}
+                    />
+                  </div>
+                </div>
+              )}
+              <div className="flex items-center justify-center md:justify-start gap-6 text-sm text-gray-500">
+                <span>Showing 1 - 12 of 1,135 results</span>
+                <Badge className="bg-gray-100 text-gray-700 border border-gray-200">Free EMI Available</Badge>
+              </div>
             </div>
+            {/* Image - Right side on desktop, hidden on mobile (shown above) */}
+            {taxonDetail?.attachment_url && (
+              <div className="hidden md:block flex-1">
+                <div className="relative w-full aspect-video rounded-2xl overflow-hidden shadow-lg">
+                  <Image
+                    src={taxonDetail.attachment_url}
+                    alt={taxonDetail.name || 'Category image'}
+                    fill
+                    className="object-cover"
+                    unoptimized={taxonDetail.attachment_url?.includes('cloudfront.net') || false}
+                  />
+                </div>
+              </div>
+            )}
           </div>
         </div>
       </section>

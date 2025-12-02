@@ -125,6 +125,7 @@ export type TaxonDetail = {
   meta_description?: string | null;
   meta_keywords?: string | null;
   depth?: number;
+  attachment_url?: string | null;
 };
 
 export type ShippingMethod = {

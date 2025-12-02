@@ -1,8 +1,8 @@
 import { SolidusAPI } from '../../../../../service/api';
 import { SOLIDUS_ROUTES } from '../../../../../lib/routes';
 
-export async function GET(request: Request, { params }: { params: { id: string } }) {
-	const { id } = params;
+export async function GET(request: Request, { params }: { params: Promise<{ id: string }> }) {
+	const { id } = await params;
 
 	const api = new SolidusAPI();
 	const cookies = request.headers.get('cookie') || '';
