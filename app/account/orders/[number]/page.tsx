@@ -605,7 +605,8 @@ export default function OrderDetailPage({ params }: { params: Promise<{ number: 
                               onClick={() => {                           
                                 setSelectedProduct({
                                   line_item_id: item?.id,
-                                  name: productName
+                                  name: productName,
+                                  imageUrl: imageUrl
                                 });
                                 setShowProductDropdown(false);
                               }}
