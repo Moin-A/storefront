@@ -244,6 +244,7 @@ export default function HomePage() {
 
             {/* Sports & Fitness */}
             <div className="group cursor-pointer hover:shadow-lg transition-all duration-300 bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+              <Link href={'/products/categories/sports-fitness'}>
               <div className="p-8 text-center">
                 <div className="w-20 h-20 bg-orange-50 rounded-2xl flex items-center justify-center mx-auto mb-6 group-hover:bg-orange-100 transition-colors">
                   <span className="text-3xl">⚽</span>
@@ -252,6 +253,7 @@ export default function HomePage() {
                 <p className="text-gray-600 mb-2">95+ items</p>
                 <p className="text-sm text-gray-500">Gear for active lifestyle</p>
               </div>
+              </Link>
             </div>
           </div>
         </div>

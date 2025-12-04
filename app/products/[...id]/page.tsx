@@ -15,6 +15,7 @@ import Link from "next/link"
 import { SOLIDUS_ROUTES } from '../../../lib/routes'
 import { motion, AnimatePresence } from "framer-motion"
 import type { TaxonDetail } from "../../types/solidus"
+import { useUserStore } from "../../store/userStore"
 
 type PriceRangeSliderProps = {
   min: number
@@ -214,7 +215,7 @@ export default function GamesPage({ params }: { params: Promise<{ id: string | s
   const [topRatedProducts, setTopRatedProducts] = useState<any[]>([])
   const [likedItems, setLikedItems] = useState<Set<number>>(new Set())
   const { id } = use(params) as { id: string | string[] }
-
+  const { user } = useUserStore();
 
 
   const products = [
@@ -793,7 +794,8 @@ export default function GamesPage({ params }: { params: Promise<{ id: string | s
                           
                           {/* Gentle glow effect on like */}
                           <AnimatePresence>
-                            {likedItems.has(product.id) && (
+                            
+                            {product.product_ratings.some(product_rating=> product_rating.user_id == product_rating.id && product_rating.is_liked ) && (
                               <motion.div
                                 className="absolute inset-0 rounded-full bg-red-500/20"
                                 initial={{ scale: 0, opacity: 0 }}
