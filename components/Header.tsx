@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from "react";
+import { use, useEffect, useState, useRef } from "react";
 import { Button } from "./ui/button";
 import { Search, ShoppingCart, User, X } from "lucide-react";
 import Link from "next/link";
@@ -15,6 +15,42 @@ export default function Header() {
   const { isAuthenticated, user } = useUserStore();
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+
+  const debounceTimeout  = useRef<NodeJS.Timeout | null>(null)
+
+  useEffect(() => {    // Close search when navigating
+    const fetchElasticSearchResults = async (query: string) => {   
+      const params = new URLSearchParams();
+      
+      if (searchQuery.trim() !== "") {
+        params.set("query", searchQuery.trim());
+      } else {
+        return;
+      }
+
+      const response = await fetch(`/api/search/elasticsearch?${params.toString()}`, {
+        method: "GET",
+        headers: {
+          Accept: "application/json",
+          credentials: "include",
+        },
+      });
+    }
+    
+    if (debounceTimeout.current) {
+      clearTimeout(debounceTimeout.current);
+    }
+
+    debounceTimeout.current = setTimeout(() => {
+      fetchElasticSearchResults(searchQuery);
+    }, 700); // Debounce time of 300ms
+
+    return () => {
+      if (debounceTimeout.current) {
+        clearTimeout(debounceTimeout.current);
+      }
+    };
+  }, [searchQuery]);
 
   return (
     <header className="bg-white border-b border-gray-100 sticky top-0 z-50">

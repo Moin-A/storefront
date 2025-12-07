@@ -436,12 +436,12 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
               </div>
 
               {/* Action Buttons */}
-              <div className="space-y-4 space-x-4 flex">
+              <div className="flex flex-col sm:flex-row gap-4">
                 <Button
                   size="sm"
                   onClick={handleAddToCart}
                   disabled={addingToCart}
-                  className="w-[14rem] cursor-pointer bg-black hover:bg-gray-800 text-white py-6 text-base font-medium rounded-xl shadow-sm hover:shadow-md transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="w-full sm:w-[14rem] cursor-pointer bg-black hover:bg-gray-800 text-white py-6 text-base font-medium rounded-xl shadow-sm hover:shadow-md transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   <ShoppingCart className=" h-5 w-5" />
                   {addingToCart ? 'Adding...' : 'Add to Cart'}
@@ -449,7 +449,7 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
 
                 <Button
                   size="sm"
-                  className="w-[14rem] cursor-pointer border-2 border-gray-300 text-gray-700 hover:bg-gray-50 hover:border-gray-400 bg-white py-6 text-base font-medium rounded-xl shadow-sm transition-all duration-200"
+                  className="w-full sm:w-[14rem] cursor-pointer border-2 border-gray-300 text-gray-700 hover:bg-gray-50 hover:border-gray-400 bg-white py-6 text-base font-medium rounded-xl shadow-sm transition-all duration-200"
                   variant="outline"
                 >
                   <BaggageClaim className=" h-5 w-5" />

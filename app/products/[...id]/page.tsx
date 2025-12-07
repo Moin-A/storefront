@@ -482,7 +482,7 @@ export default function GamesPage({ params }: { params: Promise<{ id: string | s
       <div className="bg-white border-b border-gray-200 sticky top-[4.2rem] z-40 shadow-sm">
         <div className="bg-gray-50 border-t border-gray-200">
           <div className="container mx-auto px-4">
-            <div className="flex items-center gap-8 py-4 overflow-x-auto mx-auto justify-center">
+            <div className="flex items-center gap-8 py-4 overflow-x-auto mx-auto justify-start md:justify-center">
               <div className="flex items-center gap-1 hover:text-blue-600 cursor-pointer whitespace-nowrap">
                 <span className="font-medium text-sm">PLAYSTATION</span>
                 <ChevronDown className="h-4 w-4" />
@@ -795,7 +795,7 @@ export default function GamesPage({ params }: { params: Promise<{ id: string | s
                           {/* Gentle glow effect on like */}
                           <AnimatePresence>
                             
-                            {product.product_ratings.some(product_rating=> product_rating.user_id == product_rating.id && product_rating.is_liked ) && (
+                            {product.product_ratings.some((product_rating: any)=> product_rating.user_id == product_rating.id && product_rating.is_liked ) && (
                               <motion.div
                                 className="absolute inset-0 rounded-full bg-red-500/20"
                                 initial={{ scale: 0, opacity: 0 }}

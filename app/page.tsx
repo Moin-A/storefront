@@ -46,7 +46,7 @@ export default function HomePage() {
 
     const fetchfeaturedproducts = async () => {
       try {
-        const res = await fetch(SOLIDUS_ROUTES.api.products + `?taxon_id=${10}`, {
+        const res = await fetch(SOLIDUS_ROUTES.api.products + `?taxon_id=${10}?page=2`, {
           headers: {
             Accept: "application/json",
           }
@@ -135,7 +135,7 @@ export default function HomePage() {
           </div>
 
           {/* Product Grid */}
-          <div className="flex overflow-x-auto gap-6 pb-6 scrollbar-hide">
+          <div className="flex overflow-x-auto gap-6 pb-6 scrollbar-hide justify-center">
             {getFeatureproducts?.products?.map(({ name, images, id, slug }) => (
               <Link key={id} href={`/product/${slug}`}>
                 <div
@@ -154,7 +154,7 @@ export default function HomePage() {
                         <div className="absolute inset-0 animate-pulse bg-gradient-to-r from-gray-200 via-gray-300 to-gray-200" />
                       )}
                       <ImageCard
-                        images={images || []}
+                        images={images[0] || []}
                         name={name || "Product image"}
                       />
                     </div>
@@ -177,14 +177,16 @@ export default function HomePage() {
           </div>
 
           <div className="text-center mt-12">
+             <Link href={'/products/categories/products'}>
             <Button
               variant="outline"
               size="lg"
               className="border-2 border-gray-300 text-gray-700 hover:bg-gray-50 hover:border-gray-400 px-8 py-4 text-base font-medium rounded-xl bg-transparent"
-            >
+            >             
               View All Products
-              <ArrowRight className="ml-2 h-5 w-5" />
+              <ArrowRight className="ml-2 h-5 w-5" />                        
             </Button>
+             </Link>  
           </div>
         </div>
       </section>
